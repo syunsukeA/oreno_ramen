@@ -3,18 +3,20 @@ package main
 import (
   "fmt"
   "net/http"
+  "net/url"
   "io"
+  "encoding/json"
   "github.com/antonholmquist/jason"
 )
+func getPosition() (string, string) {
+	urls := "https://get.geojs.io/v1/ip/geo.json"
 
-func main() {
-	url := "https://get.geojs.io/v1/ip/geo.json"
-
-	resp, _ := http.Get(url)
+	resp, _ := http.Get(urls)
 	defer resp.Body.Close()
 
 	byteArray, _ := io.ReadAll(resp.Body)
   	str := string(byteArray)
+	// fmt.Printf("str: \n",str)
 
 	v, err := jason.NewObjectFromBytes([]byte(str))
 	if err != nil{
@@ -26,4 +28,46 @@ func main() {
 
 	fmt.Println("latitude:" + latitude)
 	fmt.Println("longitude:" + longitude)
+	return latitude, longitude
+}
+
+func getShopList(api_key string) map[string]interface{} {
+	// 現在地の取得
+	lat, lng := getPosition()
+	// hotpepper APIで店を取得
+	params := url.Values{}
+    params.Add("key", api_key)
+	params.Add("keyword", "ラーメン")
+    params.Add("lat", lat)
+	params.Add("lng", lng)
+	params.Add("range", "4")
+	params.Add("format", "json")
+
+    // パラメータ情報を付加したURLを作成
+	urls := "http://webservice.recruit.co.jp/hotpepper/gourmet/v1/?" + params.Encode()
+	resp, _ := http.Get(urls)
+	fmt.Printf("resp: %v\n", resp)
+	defer resp.Body.Close()
+
+	byteArray, _ := io.ReadAll(resp.Body)
+  	str := string(byteArray)
+
+	var shop_data map[string]interface{}
+	json.Unmarshal([]byte(str), &shop_data)
+	return shop_data
+
+	// v, err := jason.NewObjectFromBytes([]byte(str))
+	// if err != nil{
+	// 	panic(err)
+	// }
+	// fmt.Println("v: ", v)
+	// shop, _ := v.GetString("results")
+	// fmt.Println("shop: ", shop)
+}
+
+func main() {
+	// hotpepper APIで店を取得
+	shop_data := getShopList("b6507930d6c151bd")
+	fmt.Println(shop_data["results"])
+	
 }
