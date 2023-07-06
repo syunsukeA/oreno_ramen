@@ -3,7 +3,7 @@ package main
 import (
   "fmt"
   "net/http"
-  "io/ioutil"
+  "io"
   "github.com/antonholmquist/jason"
 )
 
@@ -13,7 +13,7 @@ func main() {
 	resp, _ := http.Get(url)
 	defer resp.Body.Close()
 
-	byteArray, _ := ioutil.ReadAll(resp.Body)
+	byteArray, _ := io.ReadAll(resp.Body)
   	str := string(byteArray)
 
 	v, err := jason.NewObjectFromBytes([]byte(str))
