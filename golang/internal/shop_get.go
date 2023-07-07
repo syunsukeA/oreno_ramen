@@ -12,6 +12,8 @@ import (
 
 func GetShoplist(c *gin.Context) {
 	fmt.Println(c)
+	// shopのjsonを取得
+	// 実際にはここでHTMLを投げ返す...？
 	var shop_data map[string]interface{}
 	shop_data = getShopjson("b6507930d6c151bd")
 	fmt.Println(shop_data["results"])
