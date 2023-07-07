@@ -7,7 +7,15 @@ import (
 	"io"
 	"encoding/json"
 	"github.com/antonholmquist/jason"
+	"github.com/gin-gonic/gin"
   )
+
+func GetShoplist(c *gin.Context) {
+	fmt.Println(c)
+	var shop_data map[string]interface{}
+	shop_data = getShopjson("b6507930d6c151bd")
+	fmt.Println(shop_data["results"])
+} 
 
 func getPosition() (string, string) {
 	urls := "https://get.geojs.io/v1/ip/geo.json"
@@ -32,7 +40,7 @@ func getPosition() (string, string) {
 	return latitude, longitude
 }
 
-func GetShopList(api_key string) map[string]interface{} {
+func getShopjson(api_key string) map[string]interface{} {
 	// 現在地の取得
 	lat, lng := getPosition()
 	// hotpepper APIで店を取得
