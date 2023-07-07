@@ -1,4 +1,4 @@
-module main
+module github.com/syunsukeA/oreno_ramen/golang/internal
 
 go 1.20
 
