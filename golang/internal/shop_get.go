@@ -32,7 +32,7 @@ func getPosition() (string, string) {
 	return latitude, longitude
 }
 
-func getShopList(api_key string) map[string]interface{} {
+func GetShopList(api_key string) map[string]interface{} {
 	// 現在地の取得
 	lat, lng := getPosition()
 	// hotpepper APIで店を取得
