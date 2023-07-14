@@ -9,17 +9,17 @@ import (
   "github.com/gin-gonic/gin"
 )
 
-func connectDB(dbURL string) *sql.DB {
+func connectDB() *sql.DB {
 	jst, err := time.LoadLocation("Asia/Tokyo")
 	if err != nil {
 		panic(err)
 	}
 	c := mysql.Config{
-		DBName:    "oreno_ramen",
+		DBName:    "oreno_ramen_db",
 		User:      "root",
 		Passwd:    "passwd",
-		Addr:      dbURL,
-		// Net:       "tcp",
+		Addr:      "db:3306",
+		Net:       "tcp",
 		ParseTime: true,
 		// Collation: "utf8mb4_unicode_ci",
 		Loc:       jst,
@@ -33,13 +33,12 @@ func connectDB(dbURL string) *sql.DB {
 }
 
 func main() {
-  dbURL := "localhost:3306"
-  db := connectDB(dbURL)
+  db := connectDB()
   defer db.Close()
 
-  query := "SELECT * FROM user"
+  query := "SELECT * FROM users"
   rows, err := db.Query(query)
-  var user_id int
+  var user_id sql.NullInt64
   var name sql.NullString
   var password sql.NullString
   for rows.Next() {
