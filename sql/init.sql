@@ -10,3 +10,5 @@ create table `users` (
 ) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 INSERT INTO users (user_name, password) VALUES ('test_user', 'pass');
+INSERT INTO users (user_name, password) VALUES ('syunsuke', 'hoge');
+INSERT INTO users (user_name, password) VALUES ('guest1', '0120');
