@@ -17,3 +17,6 @@ services:
       MYSQL_DATABASE: oreno_ramen
     ports:
       - 13306:3306
+    volumes:
+      # - ./mysql/data:/var/lib/mysql
+      - ./sql/init.sql:/docker-entrypoint-initdb.d/init.sql
