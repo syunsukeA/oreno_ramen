@@ -17,7 +17,7 @@ func connectDB(dbURL string) *sql.DB {
 	c := mysql.Config{
 		DBName:    "oreno_ramen",
 		User:      "root",
-		Passwd:    "pokemon18782",
+		Passwd:    "passwd",
 		Addr:      dbURL,
 		// Net:       "tcp",
 		ParseTime: true,
@@ -33,7 +33,7 @@ func connectDB(dbURL string) *sql.DB {
 }
 
 func main() {
-  dbURL := "Local"
+  dbURL := "localhost:3306"
   db := connectDB(dbURL)
   defer db.Close()
 
