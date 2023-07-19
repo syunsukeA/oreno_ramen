@@ -4,6 +4,7 @@ import (
   "fmt"
   "database/sql"
 	"github.com/go-sql-driver/mysql"
+  "net/http"
 	"time"
   "github.com/syunsukeA/oreno_ramen/golang/internal"
   "github.com/gin-gonic/gin"
@@ -32,6 +33,10 @@ func connectDB() *sql.DB {
   return db
 }
 
+const (
+  port = 8080
+)
+
 func main() {
   db := connectDB()
   defer db.Close()
@@ -55,5 +60,7 @@ func main() {
 
 	router := gin.Default()
 	router.GET("/", internal.GetShoplist)
-  router.Run("localhost:8080")
+  if err := http.ListenAndServe(fmt.Sprintf(":%d", port), router); err != nil {
+		panic(err)
+	}
 }
