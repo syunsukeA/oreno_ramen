@@ -38,12 +38,16 @@ func main() {
 
   query := "SELECT * FROM users"
   rows, err := db.Query(query)
-  var user_id sql.NullInt64
-  var name sql.NullString
-  var password sql.NullString
+  if err != nil {
+    panic(err)
+  }
+  var user_id int
+  var name string
+  var password string
+  var created_at time.Time
   for rows.Next() {
-    rows.Scan(&user_id, &name, &password)
-    fmt.Println(user_id, name, password)
+    rows.Scan(&user_id, &name, &password, &created_at)
+    fmt.Println(user_id, name, password, created_at)
   }
   if err != nil {
     panic(err)
