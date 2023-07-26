@@ -82,7 +82,7 @@ func main() {
 	http.HandleFunc("/signup", signupHandler)
 	http.HandleFunc("/", redirectHandler)
 
-	// http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("templates"))))
+	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("../templates"))))
 
 	fmt.Println("Server started on http://localhost:8080")
 	err := http.ListenAndServe(":8080", nil)
