@@ -2,24 +2,51 @@ package handler
 
 import (
 	"fmt"
+	"github.com/gin-gonic/gin"
 	"net/http"
 )
 
-func signinHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method == "POST" {
-		username := r.FormValue("username")
-		password := r.FormValue("password")
+func RedirectHandler(c *gin.Context) {
+	c.Redirect(http.StatusMovedPermanently, "/signin")
+}
 
-		fmt.Println("Username:", username)
-		fmt.Println("Password:", password)
+func HomeHandlerGET(c *gin.Context) {
+	c.HTML(http.StatusOK, "index.html", nil)
+}
 
-		// if pass, ok := users[username]; ok && pass == password {
-		// 	session, _ := store.Get(r, "session")
-		// 	session.Values["username"] = username
-		// 	session.Save(r, w)
-		// 	http.Redirect(w, r, "/home", http.StatusFound)
-		// } else {
-		// 	renderTemplate(w, "login.html", "Invalid username or password")
-		// }
-	}
+func SigninHandlerGET(c *gin.Context) {
+	c.HTML(http.StatusOK, "signin.html", nil)
+}
+
+func SigninHandlerPOST(c *gin.Context) {
+	username := c.PostForm("username")
+	password := c.PostForm("password")
+
+	fmt.Println("Username:", username)
+	fmt.Println("Password:", password)
+
+	// ユーザ名とパスワードをDB検索
+
+	c.Redirect(http.StatusFound, "/home")
+}
+
+func SignupHandlerGET(c *gin.Context) {
+	c.HTML(http.StatusOK, "signup.html", nil)
+}
+
+func SignupHandlerPOST(c *gin.Context) {
+	username := c.PostForm("username")
+	password := c.PostForm("password")
+
+	fmt.Println("New user registration:")
+	fmt.Println("Username:", username)
+	fmt.Println("Password:", password)
+
+	// RedirectHandler(c)
+	c.Redirect(http.StatusFound, "/signin")
+}
+
+func SignoutHandlerGET(c *gin.Context) {
+	// セッションのユーザ名を空に設定してセッション状態に保存するコードが必要
+	c.Redirect(http.StatusFound, "/signin")
 }
