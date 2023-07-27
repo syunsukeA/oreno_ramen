@@ -5,7 +5,7 @@ import (
 	"net/http"
 )
 
-func loginHandler(w http.ResponseWriter, r *http.Request) {
+func signinHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
 		username := r.FormValue("username")
 		password := r.FormValue("password")
