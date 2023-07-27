@@ -3,11 +3,10 @@ package main
 import (
 	"database/sql"
 	"fmt"
-	// "github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin"
 	"github.com/go-sql-driver/mysql"
-	"github.com/gorilla/sessions"
+	"github.com/syunsukeA/oreno_ramen/golang/handler"
 	// "github.com/syunsukeA/oreno_ramen/golang/internal"
-	"html/template"
 	"net/http"
 	"time"
 )
@@ -39,125 +38,39 @@ const (
 	port = 8080
 )
 
-// func main() {
-// 	db := connectDB()
-// 	defer db.Close()
-
-// 	query := "SELECT * FROM users"
-// 	rows, err := db.Query(query)
-// 	if err != nil {
-// 		panic(err)
-// 	}
-// 	var user_id int
-// 	var name string
-// 	var password string
-// 	var created_at time.Time
-// 	for rows.Next() {
-// 		rows.Scan(&user_id, &name, &password, &created_at)
-// 		fmt.Println(user_id, name, password, created_at)
-// 	}
-// 	if err != nil {
-// 		panic(err)
-// 	}
-
-// 	router := gin.Default()
-// 	router.GET("/", internal.GetShoplist)
-// 	if err := http.ListenAndServe(fmt.Sprintf(":%d", port), router); err != nil {
-// 		panic(err)
-// 	}
-// }
-
-var store = sessions.NewCookieStore([]byte("secret-key"))
-
-var users = map[string]string{
-	"user1": "password1",
-	"user2": "password2",
-	"user3": "password3",
-}
-
 func main() {
-	http.HandleFunc("/login", loginHandler)
-	http.HandleFunc("/home", homeHandler)
-	http.HandleFunc("/logout", logoutHandler)
-	http.HandleFunc("/signup", signupHandler)
-	http.HandleFunc("/", redirectHandler)
+	db := connectDB()
+	defer db.Close()
 
-	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("../templates"))))
-
-	fmt.Println("Server started on http://localhost:8080")
-	err := http.ListenAndServe(":8080", nil)
+	query := "SELECT * FROM users"
+	rows, err := db.Query(query)
 	if err != nil {
 		panic(err)
 	}
-}
-
-func loginHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method == "POST" {
-		username := r.FormValue("username")
-		password := r.FormValue("password")
-
-		fmt.Println("Username:", username)
-		fmt.Println("Password:", password)
-
-		if pass, ok := users[username]; ok && pass == password {
-			session, _ := store.Get(r, "session")
-			session.Values["username"] = username
-			session.Save(r, w)
-			http.Redirect(w, r, "/home", http.StatusFound)
-		} else {
-			renderTemplate(w, "login.html", "Invalid username or password")
-		}
-	} else {
-		renderTemplate(w, "login.html", nil)
+	var user_id int
+	var name string
+	var password string
+	var created_at time.Time
+	for rows.Next() {
+		rows.Scan(&user_id, &name, &password, &created_at)
+		fmt.Println(user_id, name, password, created_at)
 	}
-}
-
-func homeHandler(w http.ResponseWriter, r *http.Request) {
-	session, _ := store.Get(r, "session")
-	username, ok := session.Values["username"].(string)
-	if !ok || username == "" {
-		http.Redirect(w, r, "/login", http.StatusFound)
-		return
-	}
-
-	renderTemplate(w, "index.html", username)
-}
-
-func logoutHandler(w http.ResponseWriter, r *http.Request) {
-	session, _ := store.Get(r, "session")
-	session.Values["username"] = ""
-	session.Save(r, w)
-	http.Redirect(w, r, "/login", http.StatusFound)
-}
-
-func signupHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method == "POST" {
-		username := r.FormValue("username")
-		password := r.FormValue("password")
-
-		fmt.Println("New user registration:")
-		fmt.Println("Username:", username)
-		fmt.Println("Password:", password)
-
-		http.Redirect(w, r, "/login", http.StatusFound)
-	} else {
-		renderTemplate(w, "signup.html", nil)
-	}
-}
-
-func redirectHandler(w http.ResponseWriter, r *http.Request) {
-	http.Redirect(w, r, "/login", http.StatusFound)
-}
-
-func renderTemplate(w http.ResponseWriter, tmpl string, data interface{}) {
-	tmpl = fmt.Sprintf("../templates/%s", tmpl)
-	t, err := template.ParseFiles(tmpl)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+		panic(err)
 	}
-	err = t.Execute(w, data)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+
+	router := gin.Default()
+	fmt.Println("Server started on http://localhost")
+	router.LoadHTMLGlob("templates/*")
+	router.Static("/static", "./assets")
+	router.GET("/", handler.RedirectHandler)
+	router.GET("/home", handler.HomeHandlerGET)
+	router.GET("/signin", handler.SigninHandlerGET)
+	router.POST("/signin", handler.SigninHandlerPOST)
+	router.GET("/signup", handler.SignupHandlerGET)
+	router.POST("/signup", handler.SignupHandlerPOST)
+	router.GET("/signout", handler.SignoutHandlerGET)
+	if err := http.ListenAndServe(fmt.Sprintf(":%d", port), router); err != nil {
+		panic(err)
 	}
 }
