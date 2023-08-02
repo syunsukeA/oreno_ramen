@@ -17,6 +17,10 @@ services:
   app:
     build:
       context: ./golang
+    command: air
+    volumes:
+      - ./golang:/go/src
+    restart: on-failure
     depends_on:
       db:
         condition: service_healthy
