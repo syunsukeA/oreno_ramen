@@ -6,7 +6,7 @@ git clone https://github.com/syunsukeA/oreno_ramen.git
 cd oreno_ramen
 docker compose up --build
 ```
-上記コマンドを実行し、コンテナが立ち上がった後で必要機能を使用可能
+上記コマンドを実行しコンテナが立ち上がると下記提供機能を使用可能。
 ## 提供機能
 ### App
 http://127.0.0.1:8080 にアクセスすることで接続可能。
