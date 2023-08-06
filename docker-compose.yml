@@ -4,7 +4,7 @@ services:
   nginx:
     image: nginx:latest
     ports:
-      - "80:80"
+      - "8080:80"
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf
       - ./nginx/log/access.log:/var/log/nginx/access.log
@@ -39,3 +39,12 @@ services:
       - ./sql/init.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
       test: mysqladmin ping -h 127.0.0.1 -u$$MYSQL_USER -p$$MYSQL_PASSWORD
+  
+  swagger-ui:
+    image: swaggerapi/swagger-ui
+    ports:
+      - 8081:8080
+    volumes:
+      - ./openapi.yml:/data/openapi.yml
+    environment:
+      SWAGGER_JSON: /data/openapi.yml
