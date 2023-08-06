@@ -1,0 +1,429 @@
+openapi: 3.0.0
+info:
+  description:
+    "This is a sample server of oreno_ramen.  You can find out more
+    about     Swagger at [http://swagger.io](http://swagger.io) or on
+    [irc.freenode.net, #swagger](http://swagger.io/irc/)."
+  version: 1.0.0
+  title: Swagger oreno_ramen dev
+  contact: {}
+servers:
+  - url: http://localhost:8080
+tags:
+  - name: sign
+    description: Everything about Sign
+  - name: user
+    description: Everything about User
+    externalDocs:
+      description: Find out more
+      url: http://example.com
+  - name: search
+    description: Everything about Search
+    externalDocs:
+      description: Find out more
+      url: http://example.com
+  - name: review
+    description: Everything about Review
+    externalDocs:
+      description: Find out more
+      url: http://example.com
+paths:
+  /signin:
+    post:
+      tags:
+        - sign
+      summary: Endpoint for signin
+      description: ""
+      # operationId: headHealth  # なにこれ？
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  example: Koshikawa
+                  description: The username of the account
+                password:
+                  type: string
+                  example: hogehoge
+                  description: Password of user
+        required: true
+      responses:
+        "200":
+          description: OK
+  /signup:
+    post:
+      tags:
+        - sign
+      summary: Endpoint for signup
+      description: ""
+      # operationId: getHealth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  example: Koshikawa
+                  description: The username of the account
+                password:
+                  type: string
+                  example: hogehoge
+                  description: Password of user
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: OK
+  /signout:
+    post:
+      security:
+        - Auth: []
+      tags:
+        - sign
+      summary: Endpoint for signout
+      description: ""
+      # operationId: getHealth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  example: Koshikawa
+                  description: The username of the account
+                password:
+                  type: string
+                  example: hogehoge
+                  description: Password of user
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: OK
+  /user/profile:
+    get:
+      security:
+        - Auth: []
+      tags:
+        - user
+      summary: Getting user profile
+      description: ""
+      # operationId: addAcount
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Account" # ToDo: 返すべきrefを定義
+    post:
+      security:
+        - Auth: []
+      tags:
+        - user
+      summary: Setting user profile
+      description: ""
+      # operationId: addAcount
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              # ToDo: パラメータの検討&追加
+              properties: 
+                username:
+                  type: string
+                  example: Koshikawa
+                  description: The username of the account
+                password:
+                  type: string
+                  example: hogehoge
+                  description: Password of user
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Account" # ToDo: 返すべきrefを定義
+  /search/visited:
+    get:
+      security:
+        - Auth: []
+      tags:
+        - search
+      summary: Searchig store already visited
+      description: ""
+      # operationId: updateAccount
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Account" # ToDo: 返すべきrefを定義
+  /search/unvisited:
+    get:
+      security:
+        - Auth: []
+      tags:
+        - search
+      summary: Searchig store still unvisited
+      description: ""
+      # operationId: updateAccount
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Account" # ToDo: 返すべきrefを定義
+  /review:
+    get:
+      security:
+        - Auth: []
+      tags:
+        - review
+      summary: Getting reviews
+      description: ""
+      # operationId: findRelationships
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Relationship" # ToDo: 返すべきrefを定義
+    post:
+      security:
+        - Auth: []
+      tags:
+        - review
+      summary: Create an review
+      description: ""
+      # operationId: findRelationships
+      parameters: # ToDo：パラメータの検討&反映
+        - name: username
+          in: query
+          description: Account Usernames (Username Must be Separated by Comma)
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Relationship" # ToDo: 返すべきrefを定義
+  "/review/{review_id}":
+    get:
+      security:
+        - Auth: []
+      tags:
+        - review
+      summary: Getting a review
+      description: ""
+      # operationId: findRelationships
+      parameters:
+        - name: review_id
+          in: query
+          description: Review id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Relationship" # ToDo: 返すべきrefを定義
+    post: # get以外はクエリパラメータで渡さないほうがいい...？
+      security:
+        - Auth: []
+      tags:
+        - review
+      summary: updating a review
+      description: ""
+      # operationId: findRelationships
+      parameters:
+        - name: review_id
+          in: query
+          description: Review id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Relationship" # ToDo: 返すべきrefを定義
+    delete: # get以外はクエリパラメータで渡さないほうがいい...？
+      security:
+        - Auth: []
+      tags:
+        - review
+      summary: Deleting a review
+      description: ""
+      # operationId: findRelationships
+      parameters:
+        - name: review_id
+          in: query
+          description: Review id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Relationship" # ToDo: 返すべきrefを定義
+externalDocs:
+  description: Find out more about Swagger
+  url: http://example.com
+components:
+  securitySchemes:
+    Auth:
+      type: apiKey
+      name: Authentication
+      in: header
+  schemas:
+    Account:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Account ID
+          example: 0
+        username:
+          type: string
+          description: The username of the account
+          example: john
+        display_name:
+          type: string
+          description: The account's display name
+          example: ジョン
+        create_at:
+          type: string
+          format: date-time
+          description: The time the account was created
+        followers_count:
+          type: integer
+          description: The number of followers for the account
+          example: 52
+        following_count:
+          type: integer
+          description: The number of accounts the given account is following
+          example: 128
+        note:
+          type: string
+          description: Biography of user
+        avatar:
+          type: string
+          description: URL to the avatar image
+        header:
+          type: string
+          description: URL to the header image
+    Relationship:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Target account id
+        following:
+          type: boolean
+          description: Whether the user is currently following the account
+        followed_by:
+          type: boolean
+          description: Whether the user is currently being followed by the account
+    Media:
+      type: object
+      properties:
+        media_id:
+          type: integer
+          description: an identifier related uploaded image
+          example: 123
+        media_url:
+          type: string
+          description: URL of uploaded image
+          example: "https://dummyimage.com/600x800"
+    AttachmentRequest:
+      type: object
+      properties:
+        media_id:
+          type: integer
+          description: an identifier related uploaded file
+          example: 123
+        description:
+          description: uploaded file description
+          type: string
+          example: "hoge hoge"
+    Attachment:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: ID of the attachment
+          example: 123
+        type:
+          type: string
+          description: 'One of: "image", "video", "gifv", "unknown"'
+          example: "image"
+        url:
+          type: string
+          description: URL of the image
+        description:
+          type: string
+          description: A description of the image for the visually impaired (maximum 420 characters), or `null` if none provided
+    Status:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: The ID of the status
+          example: 123
+        account:
+          $ref: "#/components/schemas/Account"
+        content:
+          type: string
+          description: Body of the status; this will contain HTML (remote HTML already sanitized)
+          example: ピタ ゴラ スイッチ♪
+        create_at:
+          type: string
+          format: date-time
+          description: The time the status was created
+        media_attachments:
+          type: array
+          items:
+            $ref: "#/components/schemas/Attachment"
