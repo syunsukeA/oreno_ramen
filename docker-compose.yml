@@ -20,6 +20,7 @@ services:
     command: air
     volumes:
       - ./golang:/go/src
+      - "./.data/go-pkg:/go/pkg/mod/cache"
     restart: on-failure
     depends_on:
       db:
@@ -35,7 +36,7 @@ services:
     ports:
       - 13306:3306
     volumes:
-      # - ./mysql/data:/var/lib/mysql
+      - "./.data/mysql:/var/lib/mysql"
       - ./sql/init.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
       test: mysqladmin ping -h 127.0.0.1 -u$$MYSQL_USER -p$$MYSQL_PASSWORD
