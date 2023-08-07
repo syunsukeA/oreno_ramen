@@ -1,3 +1,4 @@
 main
 nginx/log
 build
+.data
