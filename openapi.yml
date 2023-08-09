@@ -193,7 +193,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Account" # ToDo: 返すべきrefを定義
+                $ref: "#/components/schemas/Review"
   /reviews:
     get:
       security:
@@ -320,6 +320,48 @@ components:
       name: Authentication
       in: header
   schemas:
+    Review:
+      type: object
+      properties:
+        review_id:
+          type: integer
+          description: Review ID
+          example: 1
+        user_id:
+          type: integer
+          description: User ID
+          example: 1
+        shop_id:
+          type: integer
+          description: HottoPepper's Shop ID
+          example: 1
+        shopname:
+          type: string
+          description: The shopname
+          example: 歩夢家
+        content:
+          type: string
+          description: The content of review
+          example: 今まで食べた中で一番の太麺。
+        evaluate:
+          type: integer
+          description: evaluate in review (1 to 5)
+          example: 4
+        review_img:
+          type: string
+          description: URL to the review image
+        bookmark:
+          type: boolean
+          description: The boolean that this review bookmarked by user (true 1, false, 0)
+          example: true
+        created_at:
+          type: string
+          format: date-time
+          description: The time the review was created
+        updated_at:
+          type: string
+          format: date-time
+          description: The time the review was updated
     Account:
       type: object
       properties:
