@@ -194,7 +194,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Account" # ToDo: 返すべきrefを定義
-  /review:
+  /reviews:
     get:
       security:
         - Auth: []
@@ -212,6 +212,7 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Relationship" # ToDo: 返すべきrefを定義
+  /review:
     post:
       security:
         - Auth: []
