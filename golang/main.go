@@ -11,6 +11,7 @@ import (
   "github.com/syunsukeA/oreno_ramen/golang/handler"
 
   "github.com/gin-gonic/gin"
+  "github.com/gin-contrib/cors"
 )
 
 func connectDB() *sql.DB {
@@ -49,6 +50,17 @@ func main() {
 
   // EndPointの定義 (ToDo: もう少し長くなりそうなら別関数に切り出してもいいかも？)
 	rt := gin.Default()
+  rt.Use(cors.New(cors.Config{
+    /*
+      ToDo
+       : CORSのAllowOrigins設定の見直し
+         : Dockerからホスト名引っ張ってくるしかないか...？
+    */
+    // アクセス許可するオリジン
+    AllowOrigins: []string{
+        "*",
+    },
+  }))
   rt.GET("/", internal.GetShoplist)
   rt.POST("/signin", internal.GetShoplist)
   rt.POST("/signup", internal.GetShoplist)
