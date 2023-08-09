@@ -7,6 +7,9 @@ import (
   _"net/http"
 	"time"
   "github.com/syunsukeA/oreno_ramen/golang/internal"
+  "github.com/syunsukeA/oreno_ramen/golang/domain/object"
+  "github.com/syunsukeA/oreno_ramen/golang/handler"
+
   "github.com/gin-gonic/gin"
 )
 
@@ -41,6 +44,9 @@ func main() {
   db := connectDB()
   defer db.Close()
 
+  // objectの作成
+  ro := object.Review{}
+
   // EndPointの定義 (ToDo: もう少し長くなりそうなら別関数に切り出してもいいかも？)
 	rt := gin.Default()
   rt.GET("/", internal.GetShoplist)
@@ -54,8 +60,9 @@ func main() {
   }
   searchRt := rt.Group("/search")
   {
+    h := handler.HSearch{RO: ro}
     searchRt.GET("visited", internal.GetShoplist)
-    searchRt.GET("unvisited", internal.GetShoplist)
+    searchRt.GET("unvisited", h.SearchUnvisited)
   }
   reviewRt := rt.Group("/review")
   {
