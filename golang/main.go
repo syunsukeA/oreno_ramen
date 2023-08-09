@@ -4,7 +4,7 @@ import (
   "fmt"
   "database/sql"
 	"github.com/go-sql-driver/mysql"
-  "net/http"
+  _"net/http"
 	"time"
   "github.com/syunsukeA/oreno_ramen/golang/internal"
   "github.com/gin-gonic/gin"
@@ -41,26 +41,29 @@ func main() {
   db := connectDB()
   defer db.Close()
 
-  query := "SELECT * FROM users"
-  rows, err := db.Query(query)
-  if err != nil {
-    panic(err)
+  // EndPointの定義 (ToDo: もう少し長くなりそうなら別関数に切り出してもいいかも？)
+	rt := gin.Default()
+  rt.GET("/", internal.GetShoplist)
+  rt.POST("/signin", internal.GetShoplist)
+  rt.POST("/signup", internal.GetShoplist)
+  rt.POST("/signout", internal.GetShoplist)
+  userRt := rt.Group("/user")
+  {
+    userRt.GET("/profile", internal.GetShoplist)
+    userRt.POST("/profile", internal.GetShoplist)
   }
-  var user_id int
-  var name string
-  var password string
-  var created_at time.Time
-  for rows.Next() {
-    rows.Scan(&user_id, &name, &password, &created_at)
-    fmt.Println(user_id, name, password, created_at)
+  searchRt := rt.Group("/search")
+  {
+    searchRt.GET("visited", internal.GetShoplist)
+    searchRt.GET("unvisited", internal.GetShoplist)
   }
-  if err != nil {
-    panic(err)
+  reviewRt := rt.Group("/review")
+  {
+    reviewRt.GET("reviews", internal.GetShoplist)
+    reviewRt.POST("review", internal.GetShoplist)
+    reviewRt.GET("review/{id}", internal.GetShoplist)
+    reviewRt.POST("review/{id}", internal.GetShoplist)
+    reviewRt.DELETE("review/{id}", internal.GetShoplist)
   }
-
-	router := gin.Default()
-	router.GET("/", internal.GetShoplist)
-  if err := http.ListenAndServe(fmt.Sprintf(":%d", port), router); err != nil {
-		panic(err)
-	}
+  rt.Run(fmt.Sprintf(":%d", port))
 }
