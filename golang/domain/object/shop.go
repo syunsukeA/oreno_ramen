@@ -35,7 +35,7 @@ type HPShop struct {
 	ID string `json:"id"`
 	Lat float64 `json:"lat"`
 	Lng float64 `json:"lng"`
-	Midinght string `json:"midinght"`
+	Midnight string `json:"midnight"`
 	MobileAccess string `json:"mobile_access"`
 	Name string `json:"name"`
 	Open string `json:"open"`
