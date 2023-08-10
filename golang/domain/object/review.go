@@ -12,7 +12,6 @@ type Review struct {
 	Content string `json:"content" db:"content"`
 	Evaluate uint `json:"evaluate" db:"evaluate"`
 	ReviewImg string `json:"review_img" db:"review_img"`
-	Bookmark bool `json:"bookmark" db:"bookmark"`
 	CreatedAt time.Time `json:"created_at" db:"created_at"`
 	UpdatedAt time.Time `json:"updated_at" db:"updated_at"`
 }
