@@ -11,7 +11,7 @@ type Review struct {
 	DB *sql.DB
 }
 
-func (r *Review)GetUnvisitedReviews() (stROs []*object.Review){
+func (r *Review)GetUnvisitedReviews() (ROs []*object.Review){
 	entity := new(object.Review)
 	ROs = append(ROs, entity)
 	return ROs
