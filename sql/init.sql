@@ -11,13 +11,13 @@ create table `users` (
 );
 
 create table `shops` (
-    `shop_id`           BIGINT(20) PRIMARY -- HotPepperのPK
+    `shop_id`           BIGINT(20) UNIQUE, -- HotPepperのPK
     `user_id`           BIGINT(20) NOT NULL,
     `shopname`          VARCHAR(36) NOT NULL,
     `bookmark`          TINYINT(1) NOT NULL, -- 0or1の値 (ToDo: Goの方でBooleanの数値的扱いを確認するべきかも)
     `created_at`        datetime  default current_timestamp,
     `updated_at`        timestamp default current_timestamp on update current_timestamp,
-    FOREIGN KEY (`user_id`) REFERENCES `users`(`user_id`),
+    FOREIGN KEY (`user_id`) REFERENCES `users`(`user_id`)
 );
 
 create table `reviews` (
@@ -40,4 +40,4 @@ INSERT INTO users (username, password) VALUES ('syunsuke', 'hoge');
 INSERT INTO users (username, password) VALUES ('guest1', '0120');
 
 -- Initial data for reviews table
-INSERT INTO reviews (user_id, shop_id, shopname, bookmark) VALUES (1, 0, 'test_review', 0);
+INSERT INTO reviews (user_id, shop_id, shopname) VALUES (1, 0, 'test_review');
