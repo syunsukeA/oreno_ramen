@@ -1,17 +1,18 @@
 package main
 
 import (
-  "fmt"
-  "database/sql"
-	"github.com/go-sql-driver/mysql"
-  _"net/http"
+	"database/sql"
+	"fmt"
+	_ "net/http"
 	"time"
-  "github.com/syunsukeA/oreno_ramen/golang/internal"
-  "github.com/syunsukeA/oreno_ramen/golang/domain/object"
-  "github.com/syunsukeA/oreno_ramen/golang/handler"
 
-  "github.com/gin-gonic/gin"
-  "github.com/gin-contrib/cors"
+	"github.com/go-sql-driver/mysql"
+  "github.com/syunsukeA/oreno_ramen/golang/dao"
+	"github.com/syunsukeA/oreno_ramen/golang/handler"
+	"github.com/syunsukeA/oreno_ramen/golang/internal"
+
+	"github.com/gin-contrib/cors"
+	"github.com/gin-gonic/gin"
 )
 
 func connectDB() *sql.DB {
@@ -45,8 +46,9 @@ func main() {
   db := connectDB()
   defer db.Close()
 
-  // objectの作成
-  ro := object.Review{}
+  // repositoryの作成
+  // rr := dao.Review{DB: db}
+  sr := dao.Shop{DB: db}
 
   // EndPointの定義 (ToDo: もう少し長くなりそうなら別関数に切り出してもいいかも？)
 	rt := gin.Default()
@@ -72,7 +74,7 @@ func main() {
   }
   searchRt := rt.Group("/search")
   {
-    h := handler.HSearch{RO: ro}
+    h := handler.HSearch{Sr: &sr}
     searchRt.GET("visited", internal.GetShoplist)
     searchRt.GET("unvisited", h.SearchUnvisited)
   }
