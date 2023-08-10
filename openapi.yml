@@ -192,27 +192,29 @@ paths:
           in: query
           description: latitude
           required: true
-          schema:
-            type: string
+          type: string
+          example: "35.6408"
         - name: lng
           in: query
           description: longitude
           required: true
-          schema:
-            type: string
+          type: string
+          example: "139.7499"
         - name: rng
           in: query
           description: search range of area
           required: true
-          schema:
-            type: string
+          type: string
+          example: 4
       responses:
         "200":
           description: OK
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Review"
+                type: array
+                items:
+                  $ref: "#/components/schemas/HpShop"
   /reviews:
     get:
       security:
@@ -278,9 +280,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Relationship" # ToDo: 返すべきrefを定義
+                $ref: "#/components/schemas/Review"
     post: # get以外はクエリパラメータで渡さないほうがいい...？
       security:
         - Auth: []
@@ -489,3 +489,63 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/Attachment"
+    HpShop:
+      type: object
+      properties:
+        access:
+          type: string
+          description: How long to get there
+        address:
+          type: string
+          description: The shop place
+        close:
+          type: string
+          description: The infomation of regular holiday
+        id:
+          type: string
+          description: The Primary ShopID in HotPepper DB
+        lat:
+          type: float
+          description: latitude
+        lng:
+          type: float
+          description: longitude
+        midnight:
+          type: string
+          description: The information that open late at night
+        mobile_access:
+          type: string
+          description: Same as access???
+        name:
+          type: string
+          description: The name of shop
+        open:
+          type: string
+          description: The time when shop is open
+        photo:
+          type: object
+          $ref: "#/components/schemas/HardwareType"
+          description: An information of photos
+    HardwareType:
+      type: object
+      properties:
+        mobile:
+          type: object
+          $ref: "#/components/schemas/PhotoType"
+          description: The information for mobile
+        pc:
+          type: object
+          $ref: "#/components/schemas/PhotoType"
+          description: The information for pc
+    PhotoType:
+      type: object
+      properties:
+        l:
+          type: string
+          description: The URL to large size photo
+        m:
+          type: string
+          description: The URL to middle size photo
+        s:
+          type: string
+          description: The URL to small size photo
