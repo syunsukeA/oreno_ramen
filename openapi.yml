@@ -12,7 +12,7 @@ servers:
 tags:
   - name: sign
     description: Everything about Sign
-  - name: user
+  - name: profile
     description: Everything about User
     externalDocs:
       description: Find out more
@@ -115,12 +115,12 @@ paths:
               schema:
                 type: string
                 example: OK
-  /user/profile:
+  "/{username}/profile":
     get:
       security:
         - Auth: []
       tags:
-        - user
+        - profile
       summary: Getting user profile
       description: ""
       # operationId: addAcount
@@ -135,7 +135,7 @@ paths:
       security:
         - Auth: []
       tags:
-        - user
+        - profile
       summary: Setting user profile
       description: ""
       # operationId: addAcount
@@ -162,7 +162,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Account" # ToDo: 返すべきrefを定義
-  /search/visited:
+  "/{username}/search/visited":
     get:
       security:
         - Auth: []
@@ -178,7 +178,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Account" # ToDo: 返すべきrefを定義
-  /search/unvisited:
+  "/{username}/search/unvisited":
     get:
       security:
         - Auth: []
@@ -188,6 +188,13 @@ paths:
       description: ""
       # operationId: updateAccount
       parameters:
+        - name: username
+          in: path
+          description: The username using servises
+          required: true
+          example: syunsuke
+          schema:
+            type: string
         - name: lat
           in: query
           description: latitude
@@ -215,13 +222,13 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/HpShop"
-  /reviews:
+  "/{username}/home":
     get:
       security:
         - Auth: []
       tags:
         - review
-      summary: Getting reviews
+      summary: Getting reviews (under the user? should named as reviews? need discussion)
       description: ""
       # operationId: findRelationships
       responses:
@@ -233,7 +240,7 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Relationship" # ToDo: 返すべきrefを定義
-  /review:
+  "/{username}/{shop_id}/review":
     post:
       security:
         - Auth: []
@@ -258,13 +265,13 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Relationship" # ToDo: 返すべきrefを定義
-  "/review/{review_id}":
+  "/{username}/{shop_id}/{review_id}":
     get:
       security:
         - Auth: []
       tags:
         - review
-      summary: Getting a review
+      summary: Getting a review (The URL should be /{shop_id}/ 'review' /{review_id} ??)
       description: ""
       # operationId: findRelationships
       parameters:
