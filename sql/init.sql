@@ -40,4 +40,4 @@ INSERT INTO users (username, password) VALUES ('syunsuke', 'hoge');
 INSERT INTO users (username, password) VALUES ('guest1', '0120');
 
 -- Initial data for reviews table
-INSERT INTO reviews (user_id, shopname) VALUES (1, 'test_review');
+INSERT INTO reviews (user_id, shop_id, shopname) VALUES (1, '000000', 'test_review');
