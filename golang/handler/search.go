@@ -98,6 +98,7 @@ func (h *HSearch) SearchUnvisited(c *gin.Context){
 
 	// ResponseBodyに書き込み
 	w.Header().Set("Content-Type", "application/json")
+	w.Header().Add("Content-Type", "charset=utf-8")
 	if err := json.NewEncoder(w).Encode(hpShops); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		log.Println(err)
