@@ -39,7 +39,6 @@ func (h *HSearch) SearchUnvisited(c *gin.Context){
 	params.Add("lng", lng)
 	params.Add("range", rng)
 	params.Add("format", "json")
-
 	urls := "http://webservice.recruit.co.jp/hotpepper/gourmet/v1/?" + params.Encode()
 	resp, err := http.Get(urls)
 	if err != nil {
@@ -54,16 +53,47 @@ func (h *HSearch) SearchUnvisited(c *gin.Context){
 		log.Println(err)
 		return
 	}
-	hpPesp := new(object.HPResponse)
-	json.Unmarshal(byteData, &hpPesp)
-	hpShops := hpPesp.Result.Shop
-
+	// HotPepper APIのresoponseをGo構造体に変換
+	hpResp := new(object.HPResponse)
+	json.Unmarshal(byteData, &hpResp)
+	hpShops := hpResp.Result.Shop
+	// 店舗情報がなかったら404を返す
+	if len(hpShops) == 0 {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+	searchedIDs := []string{}
+	for _, shop := range hpShops {
+		searchedIDs = append(searchedIDs, shop.ID)
+	}
 	// 検索結果+DB情報からvisitedを消去
 	// ToDo: repository.shopに、外部APIから検索したshop_idを受け取ってunvisitedなshop_idを返す関数を宣言
+	visitedIDs, err := h.Sr.GetVisitedShopIDs(c, searchedIDs)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		log.Println(err)
+		return
+	}
 
-	// ToDo: unvisited_idの中にない店舗情報を削除するような実装
+	// ToDo: visitedIDsの中にある店舗情報を削除する処理の実装
+	// ToDo: もう少し簡潔に書けないものか...
+	unvisitedhpShops := []*object.HPShop{}
 	for _, shop := range hpShops {
-		log.Println(shop.ID)
+		unvisited := true
+		for _, visitedID := range visitedIDs {
+			if shop.ID == visitedID {
+				unvisited = false
+			}
+		}
+		if unvisited {
+			unvisitedhpShops = append(unvisitedhpShops, shop)
+		}
+	}
+	
+	// 絞り込んだ結果、店舗数が0になってしまったら404を返す
+	if len(unvisitedhpShops) == 0 {
+		w.WriteHeader(http.StatusNotFound)
+		return
 	}
 
 	// ResponseBodyに書き込み
