@@ -67,24 +67,25 @@ func main() {
   rt.POST("/signin", internal.GetShoplist)
   rt.POST("/signup", internal.GetShoplist)
   rt.POST("/signout", internal.GetShoplist)
-  userRt := rt.Group("/user")
+  userRt := rt.Group("/{username}")
   {
     userRt.GET("/profile", internal.GetShoplist)
     userRt.POST("/profile", internal.GetShoplist)
-  }
-  searchRt := rt.Group("/search")
-  {
-    h := handler.HSearch{Sr: &sr}
-    searchRt.GET("visited", internal.GetShoplist)
-    searchRt.GET("unvisited", h.SearchUnvisited)
-  }
-  reviewRt := rt.Group("/review")
-  {
-    reviewRt.GET("reviews", internal.GetShoplist)
-    reviewRt.POST("review", internal.GetShoplist)
-    reviewRt.GET("review/{id}", internal.GetShoplist)
-    reviewRt.POST("review/{id}", internal.GetShoplist)
-    reviewRt.DELETE("review/{id}", internal.GetShoplist)
+    userRt.GET("/home", internal.GetShoplist)
+    searchRt := userRt.Group("/search")
+    {
+      h := handler.HSearch{Sr: &sr}
+      searchRt.GET("/visited", internal.GetShoplist)
+      searchRt.GET("/unvisited", h.SearchUnvisited)
+    }
+    userRt.GET("/home", internal.GetShoplist)
+    reviewRt := userRt.Group("/{shop_id}")
+    {
+      reviewRt.POST("/review", internal.GetShoplist)
+      reviewRt.GET("/{review_id}", internal.GetShoplist)
+      reviewRt.POST("/{review_id}", internal.GetShoplist)
+      reviewRt.DELETE("/{review_id}", internal.GetShoplist)
+    }
   }
   rt.Run(fmt.Sprintf(":%d", port))
 }
