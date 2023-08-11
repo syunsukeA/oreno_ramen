@@ -1,7 +1,7 @@
 USE `oreno_ramen_db`;
 create table `users` (
     `user_id`         BIGINT(20) AUTO_INCREMENT,
-    `profile_img`     text,  -- ToDo: 適切なデータ型決める
+    `profile_img`     VARCHAR(36) NOT NULL,  -- ToDo: 適切なデータ型決める
     `username`        VARCHAR(36) NOT NULL,
     `password`        VARCHAR(36) NOT NULL,
     `created_at`      datetime  default current_timestamp,
@@ -35,9 +35,9 @@ create table `reviews` (
 );
 
 -- Initial data for users table
-INSERT INTO users (username, password) VALUES ('test_user', 'pass');
-INSERT INTO users (username, password) VALUES ('syunsuke', 'hoge');
-INSERT INTO users (username, password) VALUES ('guest1', '0120');
+INSERT INTO users (username, profile_img, password) VALUES ('test_user', '', 'pass');
+INSERT INTO users (username, profile_img, password) VALUES ('syunsuke', '', 'hoge');
+INSERT INTO users (username, profile_img, password) VALUES ('guest1', '', '0120');
 
 -- Initial data for reviews table
 INSERT INTO reviews (user_id, shop_id, shopname) VALUES (1, '000000', 'test_review');

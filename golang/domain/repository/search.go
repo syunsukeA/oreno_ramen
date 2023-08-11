@@ -7,5 +7,5 @@ import (
 )
 
 type Shop interface {
-	GetVisitedShopIDs(ctx *gin.Context, searchedIDs []string) (visitedIDs []string, err error) // DB操作コマンド名考える。Selectとか...？
+	GetVisitedShopIDs(ctx *gin.Context, searchedIDs []string, userID int64) (visitedIDs []string, err error) // DB操作コマンド名考える。Selectとか...？
 }

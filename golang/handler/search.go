@@ -19,13 +19,27 @@ const (
 
 type HSearch struct {
 	Sr repository.Shop
+	Ar repository.User
 	// Rr repository.Review
 }
 
 func (h *HSearch) SearchUnvisited(c *gin.Context){
-	// queryパラメータ判定
 	r := c.Request
 	w := c.Writer
+	// URLからusernameを取得
+	username := c.Param("username") // ToDo:  FWは一つに統一すべきな気がする (chi or gin)
+	user, err := h.Ar.FindByUsername(c, username) // ToDo: usernameからUser情報を検索して返すDBコマンドの作成
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		log.Println(err)
+		return
+	}
+	if user == nil {
+		w.WriteHeader(http.StatusBadRequest)
+		log.Println(err)
+		return
+	}
+		// queryパラメータ判定
 	lat := r.URL.Query().Get("lat") 
 	lng := r.URL.Query().Get("lng")
 	rng := r.URL.Query().Get("rng")
@@ -66,9 +80,8 @@ func (h *HSearch) SearchUnvisited(c *gin.Context){
 	for _, shop := range hpShops {
 		searchedIDs = append(searchedIDs, shop.ID)
 	}
-	// 検索結果+DB情報からvisitedを消去
-	// ToDo: repository.shopに、外部APIから検索したshop_idを受け取ってunvisitedなshop_idを返す関数を宣言
-	visitedIDs, err := h.Sr.GetVisitedShopIDs(c, searchedIDs)
+	// 外部APIから検索したshop_idとuser_idを受け取ってunvisitedなshop_idを返す
+	visitedIDs, err := h.Sr.GetVisitedShopIDs(c, searchedIDs, user.UserID)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		log.Println(err)

@@ -6,22 +6,24 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/jmoiron/sqlx"
 )
 
 // repsitory.Shopのimplements
 type Shop struct {
-	DB *sql.DB
+	DB *sqlx.DB
 }
 
-func (r *Shop)GetVisitedShopIDs(ctx *gin.Context, searchedIDs []string) (visitedIDs []string, err error){
-	q := fmt.Sprintf(`SELECT shop_id FROM shops WHERE shop_id IN (?%s)`, strings.Repeat(",?", len(searchedIDs)-1))
+func (r *Shop)GetVisitedShopIDs(ctx *gin.Context, searchedIDs []string, userID int64) (visitedIDs []string, err error){
+	q := fmt.Sprintf(`SELECT shop_id, user_id FROM shops WHERE user_id = ? AND shop_id IN (?%s)`, strings.Repeat(",?", len(searchedIDs)-1))
 	// QueryContextに可変引数として渡すためにany型に変換
-	anytypeIDs := make([]interface{}, 0)
+	anytypeParams := make([]interface{}, 0)
+	anytypeParams = append(anytypeParams, userID)
 	for _, id := range searchedIDs {
-		anytypeIDs = append(anytypeIDs, id)
+		anytypeParams = append(anytypeParams, id)
 	}
 	var rows *sql.Rows
-	rows, err = r.DB.QueryContext(ctx, q, anytypeIDs...)
+	rows, err = r.DB.QueryContext(ctx, q, anytypeParams...)
 	if err != nil {
 		return visitedIDs, err
 		
