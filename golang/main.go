@@ -1,7 +1,6 @@
 package main
 
 import (
-	"database/sql"
 	"fmt"
 	_ "net/http"
 	"time"
@@ -13,9 +12,10 @@ import (
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+  "github.com/jmoiron/sqlx"
 )
 
-func connectDB() *sql.DB {
+func connectDB() *sqlx.DB {
 	jst, err := time.LoadLocation("Asia/Tokyo")
 	if err != nil {
 		panic(err)
@@ -30,7 +30,7 @@ func connectDB() *sql.DB {
 		// Collation: "utf8mb4_unicode_ci",
 		Loc:       jst,
 	}
-	db, err := sql.Open("mysql", c.FormatDSN())
+	db, err := sqlx.Open("mysql", c.FormatDSN())
   if err != nil {
     panic(err)
   }
@@ -49,6 +49,7 @@ func main() {
   // repositoryの作成
   // rr := dao.Review{DB: db}
   sr := dao.Shop{DB: db}
+  ar := dao.User{DB: db}
 
   // EndPointの定義 (ToDo: もう少し長くなりそうなら別関数に切り出してもいいかも？)
 	rt := gin.Default()
@@ -67,24 +68,23 @@ func main() {
   rt.POST("/signin", internal.GetShoplist)
   rt.POST("/signup", internal.GetShoplist)
   rt.POST("/signout", internal.GetShoplist)
-  userRt := rt.Group("/{username}")
+  userRt := rt.Group("/:username")
   {
     userRt.GET("/profile", internal.GetShoplist)
     userRt.POST("/profile", internal.GetShoplist)
     userRt.GET("/home", internal.GetShoplist)
     searchRt := userRt.Group("/search")
     {
-      h := handler.HSearch{Sr: &sr}
+      h := handler.HSearch{Sr: &sr, Ar: &ar}
       searchRt.GET("/visited", internal.GetShoplist)
       searchRt.GET("/unvisited", h.SearchUnvisited)
     }
-    userRt.GET("/home", internal.GetShoplist)
-    reviewRt := userRt.Group("/{shop_id}")
+    reviewRt := userRt.Group("/:shop_id")
     {
       reviewRt.POST("/review", internal.GetShoplist)
-      reviewRt.GET("/{review_id}", internal.GetShoplist)
-      reviewRt.POST("/{review_id}", internal.GetShoplist)
-      reviewRt.DELETE("/{review_id}", internal.GetShoplist)
+      reviewRt.GET("/:review_id", internal.GetShoplist)
+      reviewRt.POST("/:review_id", internal.GetShoplist)
+      reviewRt.DELETE("/:review_id", internal.GetShoplist)
     }
   }
   rt.Run(fmt.Sprintf(":%d", port))
