@@ -5,7 +5,7 @@ import (
 )
 
 type Shop struct {
-	ShopID int64 `json:"shop_id" db:"shop_id"`
+	ShopID string `json:"shop_id" db:"shop_id"`
 	UserID int64 `json:"user_id" db:"user_id"`
 	ShopName string `json:"shopname" db:"shopname"`
 	ShopImg string `json:"shop_img"`

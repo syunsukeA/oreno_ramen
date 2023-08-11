@@ -11,7 +11,7 @@ create table `users` (
 );
 
 create table `shops` (
-    `shop_id`           BIGINT(20) UNIQUE, -- HotPepperのPK
+    `shop_id`           VARCHAR(36) NOT NULL UNIQUE, -- HotPepperのPK
     `user_id`           BIGINT(20) NOT NULL,
     `shopname`          VARCHAR(36) NOT NULL,
     `bookmark`          TINYINT(1) NOT NULL, -- 0or1の値 (ToDo: Goの方でBooleanの数値的扱いを確認するべきかも)
@@ -23,7 +23,7 @@ create table `shops` (
 create table `reviews` (
     `review_id`         BIGINT(20) AUTO_INCREMENT,
     `user_id`           BIGINT(20) NOT NULL,
-    `shop_id`           BIGINT(20), -- HotPepperのPK
+    `shop_id`           VARCHAR(36) NOT NULL, -- HotPepperのPK
     `shopname`          VARCHAR(36) NOT NULL,
     `content`           text, -- ToDo: データ型の選定
     `evaluate`          INT CHECK (evaluate >= 0 AND evaluate <=5),
@@ -40,4 +40,4 @@ INSERT INTO users (username, password) VALUES ('syunsuke', 'hoge');
 INSERT INTO users (username, password) VALUES ('guest1', '0120');
 
 -- Initial data for reviews table
-INSERT INTO reviews (user_id, shop_id, shopname) VALUES (1, 0, 'test_review');
+INSERT INTO reviews (user_id, shopname) VALUES (1, 'test_review');

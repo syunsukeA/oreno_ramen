@@ -351,9 +351,8 @@ components:
           description: User ID
           example: 1
         shop_id:
-          type: integer
+          type: string
           description: HottoPepper's Shop ID
-          example: 1
         shopname:
           type: string
           description: The shopname
