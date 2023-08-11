@@ -19,7 +19,7 @@ const (
 
 type HSearch struct {
 	Sr repository.Shop
-	Ar repository.User
+	Ur repository.User
 	// Rr repository.Review
 }
 
@@ -28,7 +28,7 @@ func (h *HSearch) SearchUnvisited(c *gin.Context){
 	w := c.Writer
 	// URLからusernameを取得
 	username := c.Param("username") // ToDo:  FWは一つに統一すべきな気がする (chi or gin)
-	user, err := h.Ar.FindByUsername(c, username) // ToDo: usernameからUser情報を検索して返すDBコマンドの作成
+	user, err := h.Ur.FindByUsername(c, username) // ToDo: usernameからUser情報を検索して返すDBコマンドの作成
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		log.Println(err)

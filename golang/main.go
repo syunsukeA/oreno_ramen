@@ -49,7 +49,7 @@ func main() {
   // repositoryの作成
   // rr := dao.Review{DB: db}
   sr := dao.Shop{DB: db}
-  ar := dao.User{DB: db}
+  ur := dao.User{DB: db}
 
   // EndPointの定義 (ToDo: もう少し長くなりそうなら別関数に切り出してもいいかも？)
 	rt := gin.Default()
@@ -75,7 +75,7 @@ func main() {
     userRt.GET("/home", internal.GetShoplist)
     searchRt := userRt.Group("/search")
     {
-      h := handler.HSearch{Sr: &sr, Ar: &ar}
+      h := handler.HSearch{Sr: &sr, Ur: &ur}
       searchRt.GET("/visited", internal.GetShoplist)
       searchRt.GET("/unvisited", h.SearchUnvisited)
     }
