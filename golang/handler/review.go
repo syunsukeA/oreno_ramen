@@ -18,18 +18,11 @@ type HReview struct {
 	Rr repository.Review
 }
 
-type CreateReviewRequest struct {
-	Content string
-	Evaluate uint
-	ReviewImg string // ToDo画像の取り扱いについては後ほど実装
-
-}
-
 func (h *HReview) CreateReview(c *gin.Context) {
 	r := c.Request
 	w := c.Writer
 	// reqBodyからreview情報取得
-	req := new(CreateReviewRequest)
+	req := new(object.CreateReviewRequest)
 	if err := json.NewDecoder(r.Body).Decode(req); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		log.Println(err)
@@ -81,9 +74,8 @@ func (h *HReview) CreateReview(c *gin.Context) {
 	}
 	// reviewを追加 (shopになければshopにも追加)
 	// ToDo: 引数多いのでどうにかできたらしたい
-	ro, err := h.Rr.AddReviewAndShop(c, shop_id, user.UserID, hpShops[0].Name, req.Content, req.Evaluate, req.ReviewImg)
+	ro, err := h.Rr.AddReviewAndShop(c, shop_id, user.UserID, hpShops[0].Name, req)
 	if err != nil || ro == nil {
-		log.Println("============================")
 		w.WriteHeader(http.StatusInternalServerError)
 		log.Println(err)
 		return

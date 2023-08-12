@@ -22,7 +22,7 @@ func (r *Review)GetUnvisitedReviews() (ROs []*object.Review){
 	return ROs
 }
 
-func (r *Review)AddReviewAndShop(c *gin.Context, shopID string, userID int64, shopname string, content string, eval uint, review_img string) (ro *object.Review, err error) {
+func (r *Review)AddReviewAndShop(c *gin.Context, shopID string, userID int64, shopname string, req *object.CreateReviewRequest) (ro *object.Review, err error) {
 	ro = new(object.Review)
 	// トランザクション処理の開始
 	tx, err := r.DB.BeginTxx(c, nil)
@@ -66,8 +66,8 @@ func (r *Review)AddReviewAndShop(c *gin.Context, shopID string, userID int64, sh
 	}
 	// reviewデータの追加
 	// ToDo: 構造体駆使して短くする？
-	q = `INSERT INTO reviews (user_id, shop_id, shopname, content, evaluate, review_img) VALUES (?, ?, ?, ?, ?, ?)`
-	res, err := tx.Exec(q, userID, shopID, shopname, content, eval, review_img)
+	q = `INSERT INTO reviews (user_id, shop_id, shopname, dishname, content, evaluate, review_img) VALUES (?, ?, ?, ?, ?, ?, ?)`
+	res, err := tx.Exec(q, userID, shopID, shopname, req.DishName, req.Content, req.Evaluate, req.ReviewImg)
 		if err != nil {
 			return nil, err
 		}

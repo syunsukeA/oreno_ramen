@@ -8,5 +8,5 @@ import (
 
 type Review interface {
 	GetUnvisitedReviews() (ROs []*object.Review)
-	AddReviewAndShop(c *gin.Context, shopID string, userID int64, shopname string, content string, eval uint, review_img string) (ro *object.Review, err error)
+	AddReviewAndShop(c *gin.Context, shopID string, userID int64, shopname string, req *object.CreateReviewRequest) (ro *object.Review, err error)
 }

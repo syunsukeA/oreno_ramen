@@ -270,6 +270,10 @@ paths:
             schema:
               type: object
               properties:
+                dishname:
+                  type: string
+                  example: 醤油ラーメン
+                  description: The name of the dish write about in the review
                 content:
                   type: string
                   example: 太麺で美味しい！

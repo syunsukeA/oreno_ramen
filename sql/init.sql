@@ -25,8 +25,10 @@ create table `reviews` (
     `user_id`           BIGINT(20) NOT NULL,
     `shop_id`           VARCHAR(36) NOT NULL, -- HotPepperのPK
     `shopname`          VARCHAR(36) NOT NULL,
+    `dishname`         VARCHAR(36) default "" NOT NULL,
     `content`           text, -- ToDo: データ型の選定
     `evaluate`          INT CHECK (evaluate >= 0 AND evaluate <=5),
+    `bookmark`          TINYINT(1) default 0, -- 0or1の値 (ToDo: Goの方でBooleanの数値的扱いを確認するべきかも)
     `review_img`        text,  -- ToDo: 適切なデータ型決める, ToDo: 画像が複数設定可能な場合どうする？
     `created_at`        datetime  default current_timestamp,
     `updated_at`        timestamp default current_timestamp on update current_timestamp,
