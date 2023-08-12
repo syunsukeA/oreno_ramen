@@ -3,6 +3,7 @@ package dao
 import (
 	_"log"
 	_"reflect"
+	"errors"
 	"database/sql"
 
 	"github.com/gin-gonic/gin"
@@ -89,4 +90,24 @@ func (r *Review)AddReviewAndShop(c *gin.Context, shopID string, userID int64, sh
 		return nil, err
 	}
 	return ro, nil
+}
+
+func (r *Review)FindReviewsByShopID(c *gin.Context, userID int64, shopID string) (ros []*object.Review, err error){
+	ros = []*object.Review{}
+	ro := new(object.Review)
+	q := `SELECT * FROM reviews WHERE user_id = ? AND shop_id = ? LIMIT 20`
+	rows, err := r.DB.QueryxContext(c, q, userID, shopID)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, nil
+		}
+		return nil, err
+	}
+	for rows.Next() {
+		if err := rows.StructScan(ro); err != nil {
+			return nil, err
+		}
+		ros = append(ros, ro)
+	}
+	return ros, err
 }

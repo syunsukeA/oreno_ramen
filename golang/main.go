@@ -47,7 +47,6 @@ func main() {
   defer db.Close()
 
   // repositoryの作成
-  // rr := dao.Review{DB: db}
   sr := dao.Shop{DB: db}
   ur := dao.User{DB: db}
   rr := dao.Review{DB: db}
@@ -76,8 +75,8 @@ func main() {
     userRt.GET("/home", internal.GetShoplist)
     searchRt := userRt.Group("/search")
     {
-      h := handler.HSearch{Sr: &sr, Ur: &ur}
-      searchRt.GET("/visited", internal.GetShoplist)
+      h := handler.HSearch{Sr: &sr, Ur: &ur, Rr: &rr}
+      searchRt.GET("/visited", h.SearchVisited)
       searchRt.GET("/unvisited", h.SearchUnvisited)
     }
     reviewRt := userRt.Group("/:shop_id")

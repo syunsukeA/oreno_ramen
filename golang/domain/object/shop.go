@@ -29,6 +29,7 @@ type Photo struct {
 }
 
 type HPShop struct {
+	Reviews []*Review `json:"reviews"`
 	Access string `json:"access"`
 	Address string `json:"address"`
 	Close string `json:"close"`

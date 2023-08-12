@@ -171,13 +171,41 @@ paths:
       summary: Searchig store already visited
       description: ""
       # operationId: updateAccount
+      parameters:
+        - name: username
+          in: path
+          description: The username using servises
+          required: true
+          example: syunsuke
+          schema:
+            type: string
+        - name: lat
+          in: query
+          description: latitude
+          required: true
+          type: string
+          example: "35.6408"
+        - name: lng
+          in: query
+          description: longitude
+          required: true
+          type: string
+          example: "139.7499"
+        - name: rng
+          in: query
+          description: search range of area
+          required: true
+          type: string
+          example: 4
       responses:
         "200":
           description: OK
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Account" # ToDo: 返すべきrefを定義
+                type: array
+                items:
+                  $ref: "#/components/schemas/HpShop"
   "/{username}/search/unvisited":
     get:
       security:
