@@ -50,6 +50,7 @@ func main() {
   // rr := dao.Review{DB: db}
   sr := dao.Shop{DB: db}
   ur := dao.User{DB: db}
+  rr := dao.Review{DB: db}
 
   // EndPointの定義 (ToDo: もう少し長くなりそうなら別関数に切り出してもいいかも？)
 	rt := gin.Default()
@@ -81,7 +82,8 @@ func main() {
     }
     reviewRt := userRt.Group("/:shop_id")
     {
-      reviewRt.POST("/review", internal.GetShoplist)
+      h := handler.HReview{Rr: &rr, Ur: &ur}
+      reviewRt.POST("/review", h.CreateReview)
       reviewRt.GET("/:review_id", internal.GetShoplist)
       reviewRt.POST("/:review_id", internal.GetShoplist)
       reviewRt.DELETE("/:review_id", internal.GetShoplist)

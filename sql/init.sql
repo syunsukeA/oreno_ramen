@@ -14,7 +14,7 @@ create table `shops` (
     `shop_id`           VARCHAR(36) NOT NULL UNIQUE, -- HotPepperのPK
     `user_id`           BIGINT(20) NOT NULL,
     `shopname`          VARCHAR(36) NOT NULL,
-    `bookmark`          TINYINT(1) NOT NULL, -- 0or1の値 (ToDo: Goの方でBooleanの数値的扱いを確認するべきかも)
+    `bookmark`          TINYINT(1) default 0, -- 0or1の値 (ToDo: Goの方でBooleanの数値的扱いを確認するべきかも)
     `created_at`        datetime  default current_timestamp,
     `updated_at`        timestamp default current_timestamp on update current_timestamp,
     FOREIGN KEY (`user_id`) REFERENCES `users`(`user_id`)
