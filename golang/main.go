@@ -84,7 +84,7 @@ func main() {
       h := handler.HReview{Rr: &rr, Ur: &ur}
       reviewRt.POST("/review", h.CreateReview)
       reviewRt.GET("/:review_id", internal.GetShoplist)
-      reviewRt.POST("/:review_id", internal.GetShoplist)
+      reviewRt.POST("/:review_id", h.UpdateReview)
       reviewRt.DELETE("/:review_id", internal.GetShoplist)
     }
   }

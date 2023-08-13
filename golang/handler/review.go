@@ -83,3 +83,51 @@ func (h *HReview) CreateReview(c *gin.Context) {
 	// ToDo: 必要そうならBodyにreviewの情報を格納して返す
 	w.WriteHeader(http.StatusNoContent)
 }
+
+func (h *HReview) UpdateReview(c *gin.Context) {
+	r := c.Request
+	w := c.Writer
+	// reqBodyからreview情報取得
+	ro := new(object.Review)
+	if err := json.NewDecoder(r.Body).Decode(ro); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		log.Println(err)
+		return
+	}
+	// URLからusername、shop_idを取得
+	// username := c.Param("username")（reviweそのまま送ってくれればいらなそうなのでとりあえずコメントアウト）
+	// ToDo: リソース表現のためにURLにも一応入れてもらうが、reqBodyでとったほうが楽なのでそっちで取得？
+	// shop_id := c.Param("shop_id")
+	// review_id := c.Param("review_id")
+
+	// usernameからuser情報を取得（reviweそのまま送ってくれればいらなそうなのでとりあえずコメントアウト）
+	// user, err := h.Ur.FindByUsername(c, username)
+	// if err != nil {
+	// 	w.WriteHeader(http.StatusInternalServerError)
+	// 	log.Println(err)
+	// 	return
+	// }
+	// if user == nil {
+	// 	w.WriteHeader(http.StatusBadRequest)
+	// 	log.Println(err)
+	// 	return
+	// }
+	// reqBodyに不足している情報の補足（reviweそのまま送ってくれればいらなそうなのでとりあえずコメントアウト）
+	// ro.UserID = user.UserID
+	// ToDo: reviewを修正する処理の実装
+	var err error
+	ro, err = h.Rr.UpdateReview(c, ro)
+	if err != nil{
+		w.WriteHeader(http.StatusInternalServerError)
+		log.Println(err)
+		return
+	}
+	// ResponseBodyに書き込み
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Add("Content-Type", "charset=utf-8")
+	if err := json.NewEncoder(w).Encode(ro); err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		log.Println(err)
+		return
+	}
+}

@@ -111,3 +111,19 @@ func (r *Review)FindReviewsByShopID(c *gin.Context, userID int64, shopID string)
 	}
 	return ros, err
 }
+
+func (r *Review)UpdateReview(c *gin.Context, ro *object.Review) (roPost *object.Review, err error) {
+	roPost = new(object.Review)
+	q := `
+		UPDATE reviews
+		SET shopname = ?, dishname = ?, content = ?, evaluate = ?, bookmark = ?, review_img = ?
+		WHERE review_id = ?`
+	err = r.DB.QueryRowxContext(c, q, ro.ShopName, ro.DishName, ro.Content, ro.Evaluate, ro.Bookmark, ro.ReviewImg, ro.ReviewID).StructScan(roPost)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return roPost, nil
+}

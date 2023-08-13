@@ -25,7 +25,7 @@ create table `reviews` (
     `user_id`           BIGINT(20) NOT NULL,
     `shop_id`           VARCHAR(36) NOT NULL, -- HotPepperのPK
     `shopname`          VARCHAR(36) NOT NULL,
-    `dishname`         VARCHAR(36) default "" NOT NULL,
+    `dishname`          VARCHAR(36) default "" NOT NULL,
     `content`           text, -- ToDo: データ型の選定
     `evaluate`          INT CHECK (evaluate >= 0 AND evaluate <=5),
     `bookmark`          TINYINT(1) default 0, -- 0or1の値 (ToDo: Goの方でBooleanの数値的扱いを確認するべきかも)
