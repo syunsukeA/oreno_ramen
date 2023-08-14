@@ -4,46 +4,52 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/go-sql-driver/mysql"
+	// "github.com/go-sql-driver/mysql"
+	"github.com/syunsukeA/oreno_ramen/golang/db"
 	"github.com/syunsukeA/oreno_ramen/golang/handler"
 	// "github.com/syunsukeA/oreno_ramen/golang/internal"
 	"net/http"
 	"time"
 )
 
-func connectDB() *sql.DB {
-	jst, err := time.LoadLocation("Asia/Tokyo")
-	if err != nil {
-		panic(err)
-	}
-	c := mysql.Config{
-		DBName:    "oreno_ramen_db",
-		User:      "root",
-		Passwd:    "passwd",
-		Addr:      "db:3306",
-		Net:       "tcp",
-		ParseTime: true,
-		// Collation: "utf8mb4_unicode_ci",
-		Loc: jst,
-	}
-	db, err := sql.Open("mysql", c.FormatDSN())
-	if err != nil {
-		panic(err)
-	}
+// func connectDB() *sql.DB {
+// 	jst, err := time.LoadLocation("Asia/Tokyo")
+// 	if err != nil {
+// 		panic(err)
+// 	}
+// 	c := mysql.Config{
+// 		DBName:    "oreno_ramen_db",
+// 		User:      "root",
+// 		Passwd:    "passwd",
+// 		Addr:      "db:3306",
+// 		Net:       "tcp",
+// 		ParseTime: true,
+// 		// Collation: "utf8mb4_unicode_ci",
+// 		Loc: jst,
+// 	}
+// 	db, err := sql.Open("mysql", c.FormatDSN())
+// 	if err != nil {
+// 		panic(err)
+// 	}
 
-	return db
-}
+// 	return db
+// }
 
 const (
 	port = 8080
 )
 
+var DB *sql.DB
+
 func main() {
-	db := connectDB()
-	defer db.Close()
+	db.ConnectDB()
+	fmt.Println("==================================")
+	fmt.Println(DB)
+	fmt.Println("==================================")
+	defer DB.Close()
 
 	query := "SELECT * FROM users"
-	rows, err := db.Query(query)
+	rows, err := DB.Query(query)
 	if err != nil {
 		panic(err)
 	}

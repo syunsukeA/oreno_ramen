@@ -1,14 +1,14 @@
 package internal
 
 import (
-	"fmt"
-	"net/http"
-	"net/url"
-	"io"
 	"encoding/json"
+	"fmt"
 	"github.com/antonholmquist/jason"
 	"github.com/gin-gonic/gin"
-  )
+	"io"
+	"net/http"
+	"net/url"
+)
 
 func GetShoplist(c *gin.Context) {
 	fmt.Println(c)
@@ -17,7 +17,7 @@ func GetShoplist(c *gin.Context) {
 	var shop_data map[string]interface{}
 	shop_data = getShopjson("b6507930d6c151bd")
 	fmt.Println(shop_data["results"])
-} 
+}
 
 func getPosition() (string, string) {
 	urls := "https://get.geojs.io/v1/ip/geo.json"
@@ -26,11 +26,11 @@ func getPosition() (string, string) {
 	defer resp.Body.Close()
 
 	byteArray, _ := io.ReadAll(resp.Body)
-  	str := string(byteArray)
+	str := string(byteArray)
 	// fmt.Printf("str: \n",str)
 
 	v, err := jason.NewObjectFromBytes([]byte(str))
-	if err != nil{
+	if err != nil {
 		panic(err)
 	}
 
@@ -47,21 +47,21 @@ func getShopjson(api_key string) map[string]interface{} {
 	lat, lng := getPosition()
 	// hotpepper APIで店を取得
 	params := url.Values{}
-    params.Add("key", api_key)
+	params.Add("key", api_key)
 	params.Add("keyword", "ラーメン")
-    params.Add("lat", lat)
+	params.Add("lat", lat)
 	params.Add("lng", lng)
 	params.Add("range", "4")
 	params.Add("format", "json")
 
-    // パラメータ情報を付加したURLを作成
+	// パラメータ情報を付加したURLを作成
 	urls := "http://webservice.recruit.co.jp/hotpepper/gourmet/v1/?" + params.Encode()
 	resp, _ := http.Get(urls)
 	fmt.Printf("resp: %v\n", resp)
 	defer resp.Body.Close()
 
 	byteArray, _ := io.ReadAll(resp.Body)
-  	str := string(byteArray)
+	str := string(byteArray)
 
 	var shop_data map[string]interface{}
 	json.Unmarshal([]byte(str), &shop_data)

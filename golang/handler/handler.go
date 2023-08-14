@@ -1,8 +1,10 @@
 package handler
 
 import (
+	"database/sql"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/syunsukeA/oreno_ramen/golang/db"
 	"net/http"
 )
 
@@ -26,6 +28,28 @@ func SigninHandlerPOST(c *gin.Context) {
 	fmt.Println("Password:", password)
 
 	// ユーザ名とパスワードをDB検索
+
+	var dbUsername string
+	var dbPassword string
+
+	query := "SELECT username, password FROM users WHERE username = ?"
+	err := db.DB.QueryRow(query, username).Scan(&dbUsername, &dbPassword)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			// User does not exist
+			fmt.Println("User does not exist.")
+			return
+		} else {
+			// Some other error
+			fmt.Println("Some error occurred:", err)
+			return
+		}
+	}
+
+	if dbPassword != password {
+		fmt.Println("パスワードが違う")
+		return
+	}
 
 	c.Redirect(http.StatusFound, "/home")
 }
