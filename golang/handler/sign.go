@@ -15,7 +15,7 @@ type HSign struct {
 	Ur repository.User
 }
 
-func (h *HSign) RegisterUser(c *gin.Context) {
+func (h *HSign) SignupUser(c *gin.Context) {
 	r := c.Request
 	w := c.Writer
 
@@ -35,7 +35,7 @@ func (h *HSign) RegisterUser(c *gin.Context) {
 	user.Password = string(hashedPassword)
 
 	// ユーザーを登録
-	_, err = h.Ur.RegisterByUsername(c, user.UserName) // ToDo: RegisterByUsername の実装
+	_, err = h.Ur.SignupByUsername(c, user.UserName) // ToDo: SignupByUsername の実装
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
@@ -44,26 +44,26 @@ func (h *HSign) RegisterUser(c *gin.Context) {
 	w.WriteHeader(http.StatusNoContent)
 }
 
-func (h *HSign) LoginUser(c *gin.Context) {
+func (h *HSign) SigninUser(c *gin.Context) {
 	r := c.Request
 	w := c.Writer
 
 	// リクエストボディからログイン情報を取得
-	var loginInfo object.User
-	if err := json.NewDecoder(r.Body).Decode(&loginInfo); err != nil {
+	var signinInfo object.User
+	if err := json.NewDecoder(r.Body).Decode(&signinInfo); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
 	// ユーザー名からユーザー情報を取得
-	user, err := h.Ur.FindByUsername(c, loginInfo.UserName)
+	user, err := h.Ur.FindByUsername(c, signinInfo.UserName)
 	if err != nil {
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 
 	// パスワードの照合
-	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(loginInfo.Password)); err != nil {
+	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(signinInfo.Password)); err != nil {
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
@@ -71,7 +71,7 @@ func (h *HSign) LoginUser(c *gin.Context) {
 	w.WriteHeader(http.StatusOK)
 }
 
-func (h *HSign) LogoutUser(c *gin.Context) {
+func (h *HSign) SignoutUser(c *gin.Context) {
 	// ToDo: ログアウト処理を実装
 
 	c.Writer.WriteHeader(http.StatusNoContent)
