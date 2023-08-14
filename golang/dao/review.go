@@ -1,7 +1,7 @@
 package dao
 
 import (
-	_"log"
+	"log"
 	_"reflect"
 	"errors"
 	"database/sql"
@@ -117,13 +117,28 @@ func (r *Review)UpdateReview(c *gin.Context, ro *object.Review) (roPost *object.
 	q := `
 		UPDATE reviews
 		SET shopname = ?, dishname = ?, content = ?, evaluate = ?, bookmark = ?, review_img = ?
-		WHERE review_id = ?`
-	err = r.DB.QueryRowxContext(c, q, ro.ShopName, ro.DishName, ro.Content, ro.Evaluate, ro.Bookmark, ro.ReviewImg, ro.ReviewID).StructScan(roPost)
+		WHERE user_id = ? AND review_id = ?`
+	res, err := r.DB.ExecContext(c, q, ro.ShopName, ro.DishName, ro.Content, ro.Evaluate, ro.Bookmark, ro.ReviewImg, ro.UserID, ro.ReviewID)
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return nil, nil
-		}
 		return nil, err
 	}
+	n_affected, err := res.RowsAffected()
+	if err != nil {
+		return nil, err
+	}
+	// 変更がなされなかった場合は両方nilを返す
+	if n_affected == 0 {
+		return nil, nil
+	}
+	// reviewを返すためにSELECTする
+	q = `
+		SELECT *
+		FROM reviews
+		WHERE user_id = ? AND review_id = ?`
+	err = r.DB.QueryRowxContext(c, q, ro.UserID, ro.ReviewID).StructScan(roPost)
+	if err != nil {
+		return nil, err
+	}
+	log.Println("ro: ", ro)
 	return roPost, nil
 }

@@ -122,6 +122,10 @@ func (h *HReview) UpdateReview(c *gin.Context) {
 		log.Println(err)
 		return
 	}
+	if ro == nil {
+		w.WriteHeader(http.StatusNotModified)
+		return
+	}
 	// ResponseBodyに書き込み
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Add("Content-Type", "charset=utf-8")
