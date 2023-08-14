@@ -85,7 +85,7 @@ func main() {
       reviewRt.POST("/review", h.CreateReview)
       reviewRt.GET("/:review_id", internal.GetShoplist)
       reviewRt.POST("/:review_id", h.UpdateReview)
-      reviewRt.DELETE("/:review_id", internal.GetShoplist)
+      reviewRt.DELETE("/:review_id", h.RemoveReview)
     }
   }
   rt.Run(fmt.Sprintf(":%d", port))

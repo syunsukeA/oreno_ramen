@@ -3,6 +3,7 @@ package handler
 import (
 	"io"
 	"log"
+	"strconv"
 	"net/http"
 	"net/url"
 	"encoding/json"
@@ -134,4 +135,43 @@ func (h *HReview) UpdateReview(c *gin.Context) {
 		log.Println(err)
 		return
 	}
+}
+
+func (h *HReview) RemoveReview(c *gin.Context) {
+	// r := c.Request
+	w := c.Writer
+	// URLからusername、shop_id, review_idを取得
+	username := c.Param("username")
+	shop_id := c.Param("shop_id")
+	review_id, err := strconv.ParseInt(c.Param("review_id"), 10, 64)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		log.Println(err)
+		return
+	}
+	// usernameからuser情報を検索
+	user, err := h.Ur.FindByUsername(c, username)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		log.Println(err)
+		return
+	}
+	if user == nil {
+		w.WriteHeader(http.StatusBadRequest)
+		log.Println(err)
+		return
+	}
+	// reviewを削除 (reviewが0になったらshopsからも削除)
+	ro, err := h.Rr.RemoveReviewAndShop(c, user.UserID, shop_id, review_id)
+	log.Println("err: ", err.Error())
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		log.Println(err)
+		return
+	}
+	if ro == nil {
+		w.WriteHeader(http.StatusNotFound)
+		log.Println(err)
+	}
+	w.WriteHeader(http.StatusOK)
 }
