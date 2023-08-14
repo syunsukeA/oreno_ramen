@@ -8,4 +8,5 @@ import (
 
 type User interface {
 	FindByUsername(ctx *gin.Context, username string) (uo *object.User, err error)
+	RegisterByUsername(ctx *gin.Context, username string) (uo *object.User, err error)
 }
