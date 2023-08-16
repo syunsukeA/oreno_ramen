@@ -148,6 +148,10 @@ func (h *HSearch) SearchUnvisited(c *gin.Context) {
 	lng := r.URL.Query().Get("lng")
 	rng := r.URL.Query().Get("rng")
 	// ToDo: paramエラーハンドリング
+	if lat == "" || lng == "" || rng == "" {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 
 	// HotPepper API呼び出し
 	params := url.Values{}
