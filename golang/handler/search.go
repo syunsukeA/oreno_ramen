@@ -210,7 +210,7 @@ func (h *HSearch) SearchUnvisited(c *gin.Context) {
 	// 		unvisitedhpShops = append(unvisitedhpShops, shop)
 	// 	}
 	// }
-	// visitedIDsをマップに変換する
+	// visitedIDsをマップに変換する (mapを使用することでID検索の計算量がO(1)になる(GPTより))
 	visitedMap := make(map[string]bool)
 	for _, id := range visitedIDs {
 		visitedMap[id] = true
