@@ -16,26 +16,28 @@ type HSign struct {
 }
 
 func (h *HSign) SignupUser(c *gin.Context) {
-	r := c.Request
+	// r := c.Request
 	w := c.Writer
 
 	// リクエストボディからユーザー情報を取得
 	var user object.User
-	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
+	user.UserName = "user1234" // ハードコードする形でデバッグ
+	user.Password = "abcdefg"
+	// if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
+	// 	w.WriteHeader(http.StatusBadRequest)
+	// 	return
+	// }
 
-	// パスワードをハッシュ化して保存
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-	user.Password = string(hashedPassword)
+	// // パスワードをハッシュ化して保存
+	// hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+	// if err != nil {
+	// 	w.WriteHeader(http.StatusInternalServerError)
+	// 	return
+	// }
+	// user.Password = string(hashedPassword)
 
 	// ユーザーを登録
-	_, err = h.Ur.SignupByUsername(c, user.UserName) // ToDo: SignupByUsername の実装
+	_, err := h.Ur.SignupByUsername(c, user.UserName, user.Password)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
@@ -71,8 +73,8 @@ func (h *HSign) SigninUser(c *gin.Context) {
 	w.WriteHeader(http.StatusOK)
 }
 
-func (h *HSign) SignoutUser(c *gin.Context) {
-	// ToDo: ログアウト処理を実装
+// func (h *HSign) SignoutUser(c *gin.Context) {
+// 	// ToDo: ログアウト処理を実装
 
-	c.Writer.WriteHeader(http.StatusNoContent)
-}
+// 	c.Writer.WriteHeader(http.StatusNoContent)
+// }
