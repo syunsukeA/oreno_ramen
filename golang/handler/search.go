@@ -198,15 +198,27 @@ func (h *HSearch) SearchUnvisited(c *gin.Context) {
 
 	// ToDo: visitedIDsの中にある店舗情報を削除する処理の実装
 	// ToDo: もう少し簡潔に書けないものか...
+	// unvisitedhpShops := []*object.HPShop{}
+	// for _, shop := range hpShops {
+	// 	unvisited := true
+	// 	for _, visitedID := range visitedIDs {
+	// 		if shop.ID == visitedID {
+	// 			unvisited = false
+	// 		}
+	// 	}
+	// 	if unvisited {
+	// 		unvisitedhpShops = append(unvisitedhpShops, shop)
+	// 	}
+	// }
+	// visitedIDsをマップに変換する
+	visitedMap := make(map[string]bool)
+	for _, id := range visitedIDs {
+		visitedMap[id] = true
+	}
 	unvisitedhpShops := []*object.HPShop{}
 	for _, shop := range hpShops {
-		unvisited := true
-		for _, visitedID := range visitedIDs {
-			if shop.ID == visitedID {
-				unvisited = false
-			}
-		}
-		if unvisited {
+		// マップを使用してshop.IDが存在するかどうかを確認
+		if !visitedMap[shop.ID] {
 			unvisitedhpShops = append(unvisitedhpShops, shop)
 		}
 	}
