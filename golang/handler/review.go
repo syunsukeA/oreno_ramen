@@ -1,11 +1,11 @@
 package handler
 
 import (
+	"encoding/json"
 	"io"
 	"log"
 	"net/http"
 	"net/url"
-	"encoding/json"
 
 	"github.com/syunsukeA/oreno_ramen/golang/domain/object"
 	"github.com/syunsukeA/oreno_ramen/golang/domain/repository"
@@ -33,7 +33,7 @@ func (h *HReview) CreateReview(c *gin.Context) {
 	shop_id := c.Param("shop_id")
 	// HotPepper APIで shop_idが存在するか判定する
 	params := url.Values{}
-    params.Add("key", HP_API_KEY)
+	params.Add("key", HP_API_KEY)
 	params.Add("id", shop_id)
 	params.Add("format", "json")
 	urls := "http://webservice.recruit.co.jp/hotpepper/gourmet/v1/?" + params.Encode()
@@ -59,7 +59,7 @@ func (h *HReview) CreateReview(c *gin.Context) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	
+
 	log.Println(shop_id)
 	user, err := h.Ur.FindByUsername(c, username) // ToDo: usernameからUser情報を検索して返すDBコマンドの作成
 	if err != nil {
@@ -72,9 +72,17 @@ func (h *HReview) CreateReview(c *gin.Context) {
 		log.Println(err)
 		return
 	}
+
 	// reviewを追加 (shopになければshopにも追加)
 	// ToDo: 引数多いのでどうにかできたらしたい
-	ro, err := h.Rr.AddReviewAndShop(c, shop_id, user.UserID, hpShops[0].Name, req)
+	// 引数にする構造体を定義
+	rev_info := &repository.AddReviewInput{
+		ShopID:   shop_id,
+		UserID:   user.UserID,
+		ShopName: hpShops[0].Name,
+		Request:  req,
+	}
+	ro, err := h.Rr.AddReviewAndShop(c, rev_info)
 	if err != nil || ro == nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		log.Println(err)
@@ -117,7 +125,7 @@ func (h *HReview) UpdateReview(c *gin.Context) {
 	// ToDo: reviewを修正する処理の実装
 	var err error
 	ro, err = h.Rr.UpdateReview(c, ro)
-	if err != nil{
+	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		log.Println(err)
 		return
