@@ -90,6 +90,12 @@ func (h *HReview) CreateReview(c *gin.Context) {
 	}
 	// ToDo: 必要そうならBodyにreviewの情報を格納して返す
 	w.WriteHeader(http.StatusNoContent)
+	// w.WriteHeader(http.StatusCreated)
+	// if err := json.NewEncoder(w).Encode(req); err != nil {
+	// 	w.WriteHeader(http.StatusInternalServerError)
+	// 	log.Println("Failed to encode review:", err)
+	// 	return
+	// }
 }
 
 func (h *HReview) UpdateReview(c *gin.Context) {
