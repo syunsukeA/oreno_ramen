@@ -145,30 +145,21 @@ func (r *Review)UpdateReview(c *gin.Context, ro *object.Review) (roPost *object.
 
 func (r *Review)RemoveReviewAndShop(c *gin.Context, userID int64, shopID string, reviewID int64) (ro *object.Review, err error) {
 	ro = new(object.Review)
-	/* 
-	< ToDo >
-		・トランザクション処理の確認
-			・処理中にreturnがされると最後にdeferが呼ばれていい感じにerrorハンドリングされると思っていた
-			・だが現状は最初のDELETEでAffectedRowsが0の場合に "sql.ErrNoRows" を nilに変換できていない。
-	*/
 	// トランザクション処理の開始
 	tx, err := r.DB.BeginTxx(c, nil)
 	if err != nil {
         return nil, err
     }
-	defer func() (ro *object.Review, err error) {
+	// defer内で戻り値の変更 (エラーハンドリング) はできないっぽいのでlogに吐き出す
+	defer func() {
         switch r := recover(); {
 		case r != nil:
             tx.Rollback()
-            return nil, err
         case err != nil:
             tx.Rollback()
-			if err == sql.ErrNoRows {
-				return nil, nil
-			}
-			return nil, err
-		default:
-			return ro, nil
+		case ro == nil:
+			tx.Rollback()
+			log.Println(sql.ErrNoRows)
 		}
     }()
 	// Exexでreviewを削除
@@ -183,7 +174,7 @@ func (r *Review)RemoveReviewAndShop(c *gin.Context, userID int64, shopID string,
 		return nil, err
 	}
 	if n_affected == 0 {
-		return nil, sql.ErrNoRows
+		return nil, nil
 	}
 	// ToDo: user_id, shop_idで検索してreview件数が0ならshopsから削除
 	q = `SELECT * FROM reviews WHERE user_id = ? AND shop_id = ?`
