@@ -32,7 +32,7 @@ paths:
     post:
       tags:
         - sign
-      summary: Endpoint for signin
+      summary: (Unnecessary?) Endpoint for signin
       description: ""
       # operationId: headHealth  # なにこれ？
       requestBody:
@@ -57,7 +57,7 @@ paths:
     post:
       tags:
         - sign
-      summary: Endpoint for signup
+      summary: (Done) Endpoint for signup
       description: ""
       # operationId: getHealth
       requestBody:
@@ -89,7 +89,7 @@ paths:
         - Auth: []
       tags:
         - sign
-      summary: Endpoint for signout
+      summary: (Unnecessary?) Endpoint for signout
       description: ""
       # operationId: getHealth
       requestBody:
@@ -121,7 +121,7 @@ paths:
         - Auth: []
       tags:
         - profile
-      summary: Getting user profile
+      summary: (not implemented yet) Getting user profile
       description: ""
       # operationId: addAcount
       responses:
@@ -136,7 +136,7 @@ paths:
         - Auth: []
       tags:
         - profile
-      summary: Setting user profile
+      summary: (not implemented yet) Setting user profile
       description: ""
       # operationId: addAcount
       requestBody:
@@ -168,7 +168,7 @@ paths:
         - Auth: []
       tags:
         - search
-      summary: Searchig store already visited
+      summary: (Done) Searchig store already visited
       description: ""
       # operationId: updateAccount
       parameters:
@@ -212,7 +212,7 @@ paths:
         - Auth: []
       tags:
         - search
-      summary: Searchig store still unvisited
+      summary: (Done) Searchig store still unvisited
       description: ""
       # operationId: updateAccount
       parameters:
@@ -256,7 +256,7 @@ paths:
         - Auth: []
       tags:
         - review
-      summary: Getting reviews (under the user? should named as reviews? need discussion)
+      summary: (not implemented yet) Getting reviews (under the user? should named as reviews? need discussion)
       description: ""
       # operationId: findRelationships
       responses:
@@ -274,7 +274,7 @@ paths:
         - Auth: []
       tags:
         - review
-      summary: Create an review
+      summary: (Done) Create an review
       description: ""
       # operationId: findRelationships
       parameters: # ToDo：パラメータの検討&反映
@@ -324,7 +324,7 @@ paths:
         - Auth: []
       tags:
         - review
-      summary: Getting a review (The URL should be /{shop_id}/ 'review' /{review_id} ??)
+      summary: (Unnecessary EndPoint) Getting a review (The URL should be /{shop_id}/ 'review' /{review_id} ??)
       description: ""
       # operationId: findRelationships
       parameters:
@@ -346,7 +346,7 @@ paths:
         - Auth: []
       tags:
         - review
-      summary: updating a review
+      summary: (Done) updating a review
       description: ""
       # operationId: findRelationships
       parameters:
@@ -384,7 +384,7 @@ paths:
         - Auth: []
       tags:
         - review
-      summary: Deleting a review
+      summary: (Doone) Deleting a review
       description: ""
       # operationId: findRelationships
       parameters:
