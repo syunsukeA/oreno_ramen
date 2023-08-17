@@ -163,7 +163,6 @@ func (h *HReview) RemoveReview(c *gin.Context) {
 	}
 	// reviewを削除 (reviewが0になったらshopsからも削除)
 	ro, err := h.Rr.RemoveReviewAndShop(c, user.UserID, shop_id, review_id)
-	log.Println("err: ", err.Error())
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		log.Println(err)
@@ -172,6 +171,7 @@ func (h *HReview) RemoveReview(c *gin.Context) {
 	if ro == nil {
 		w.WriteHeader(http.StatusNotFound)
 		log.Println(err)
+		return
 	}
 	w.WriteHeader(http.StatusOK)
 }
