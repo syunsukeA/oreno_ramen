@@ -42,6 +42,14 @@ const (
 	port = 8080
 )
 
+func LogStatusMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.Next()
+		statusCode := c.Writer.Status()
+		fmt.Printf("Status Code: %d\n", statusCode)
+	}
+}
+
 func main() {
 	db := connectDB()
 	defer db.Close()
@@ -53,6 +61,7 @@ func main() {
 
 	// EndPointの定義 (ToDo: もう少し長くなりそうなら別関数に切り出してもいいかも？)
 	rt := gin.Default()
+	rt.Use(LogStatusMiddleware())
 	rt.Use(cors.New(cors.Config{
 		/*
 		   ToDo
@@ -68,7 +77,7 @@ func main() {
 	hSign := handler.HSign{Ur: &ur}
 	rt.POST("/signin", hSign.SigninUser)
 	rt.POST("/signup", hSign.SignupUser)
-	rt.POST("/signout", hSign.SignoutUser)
+	rt.POST("/signout", internal.GetShoplist)
 	userRt := rt.Group("/:username")
 	{
 		userRt.GET("/profile", internal.GetShoplist)
