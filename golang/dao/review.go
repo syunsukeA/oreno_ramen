@@ -30,16 +30,12 @@ func (r *Review)AddReviewAndShop(c *gin.Context, shopID string, userID int64, sh
 	if err != nil {
         return nil, err
     }
-	defer func() (*object.Review, error) {
+	defer func() {
         switch r := recover(); {
 		case r != nil:
             tx.Rollback()
-            return nil, err
         case err != nil:
             tx.Rollback()
-			return nil, err
-		default:
-			return ro, nil
 		}
     }()
 	so := new(object.Shop)
@@ -69,22 +65,22 @@ func (r *Review)AddReviewAndShop(c *gin.Context, shopID string, userID int64, sh
 	// ToDo: 構造体駆使して短くする？
 	q = `INSERT INTO reviews (user_id, shop_id, shopname, dishname, content, evaluate, review_img) VALUES (?, ?, ?, ?, ?, ?, ?)`
 	res, err := tx.Exec(q, userID, shopID, shopname, req.DishName, req.Content, req.Evaluate, req.ReviewImg)
-		if err != nil {
-			return nil, err
-		}
-		// ToDo: 作成したreviewをResBodyに入れるために検索？？
-		// review_id, err := res.LastInsertId()
-		if err != nil {
-			return nil, err
-		}
-		// ToDo: もしかしたらこの辺の処理いらないかも？
-		nrows, err := res.RowsAffected()
-		if err != nil {
-			return nil, err
-		}
-		if nrows <= 0 {
-			return nil, sql.ErrNoRows
-		}
+	if err != nil {
+		return nil, err
+	}
+	// ToDo: 作成したreviewをResBodyに入れるために検索？？
+	// review_id, err := res.LastInsertId()
+	if err != nil {
+		return nil, err
+	}
+	// ToDo: もしかしたらこの辺の処理いらないかも？
+	nrows, err := res.RowsAffected()
+	if err != nil {
+		return nil, err
+	}
+	if nrows <= 0 {
+		return nil, sql.ErrNoRows
+	}
 	// トランザクション処理をコミット
 	if err = tx.Commit(); err != nil {
 		return nil, err
