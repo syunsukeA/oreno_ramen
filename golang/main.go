@@ -51,6 +51,7 @@ func main() {
   ur := dao.User{DB: db}
   rr := dao.Review{DB: db}
 
+  hAuth := handler.HAuth{Ur: &ur}
   // EndPointの定義 (ToDo: もう少し長くなりそうなら別関数に切り出してもいいかも？)
 	rt := gin.Default()
   rt.Use(cors.New(cors.Config{
@@ -74,6 +75,7 @@ func main() {
     userRt.POST("/profile", internal.GetShoplist)
     userRt.GET("/home", internal.GetShoplist)
     searchRt := userRt.Group("/search")
+    searchRt.Use(hAuth.AuthenticationMiddleware())
     {
       h := handler.HSearch{Sr: &sr, Ur: &ur, Rr: &rr}
       searchRt.GET("/visited", h.SearchVisited)
