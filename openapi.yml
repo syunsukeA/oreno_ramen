@@ -419,7 +419,7 @@ components:
   securitySchemes:
     Auth:
       type: apiKey
-      name: Authentication
+      name: Authorization
       in: header
   schemas:
     Review:
