@@ -112,6 +112,11 @@ func (h *HSearch) SearchVisited(c *gin.Context){
 			}
 		}
 	}
+	// visited店舗のみの変換によって店舗情報がなくなってしまったら404を返す
+	if len(visitedhpShops) == 0 {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
 	// ResponseBodyに書き込み
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Add("Content-Type", "charset=utf-8")
