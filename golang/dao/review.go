@@ -3,6 +3,8 @@ package dao
 import (
 	"database/sql"
 	"errors"
+
+	// "fmt"
 	_ "log"
 	_ "reflect"
 
@@ -73,23 +75,24 @@ func (r *Review) AddReviewAndShop(c *gin.Context, rev_info *repository.AddReview
 	// reviewデータの追加
 	// ToDo: 構造体駆使して短くする？
 	q = `INSERT INTO reviews (user_id, shop_id, shopname, dishname, content, evaluate, review_img) VALUES (?, ?, ?, ?, ?, ?, ?)`
-	res, err := tx.Exec(q, userID, shopID, shopname, req.DishName, req.Content, req.Evaluate, req.ReviewImg)
+	_, err = tx.Exec(q, userID, shopID, shopname, req.DishName, req.Content, req.Evaluate, req.ReviewImg)
 	if err != nil {
 		return nil, err
 	}
 	// ToDo: 作成したreviewをResBodyに入れるために検索？？
 	// review_id, err := res.LastInsertId()
-	if err != nil {
-		return nil, err
-	}
+	// if err != nil {
+	// 	return nil, err
+	// }
 	// ToDo: もしかしたらこの辺の処理いらないかも？
-	nrows, err := res.RowsAffected()
-	if err != nil {
-		return nil, err
-	}
-	if nrows <= 0 {
-		return nil, sql.ErrNoRows
-	}
+	// nrows, err := res.RowsAffected()
+	// if err != nil {
+	// 	return nil, err
+	// }
+	// if nrows <= 0 {
+	// 	return nil, sql.ErrNoRows
+	// }
+
 	// トランザクション処理をコミット
 	if err = tx.Commit(); err != nil {
 		return nil, err
@@ -119,6 +122,9 @@ func (r *Review) FindReviewsByShopID(c *gin.Context, userID int64, shopID string
 
 func (r *Review) UpdateReview(c *gin.Context, ro *object.Review) (roPost *object.Review, err error) {
 	roPost = new(object.Review)
+	// fmt.Println("==================================")
+	// fmt.Println(ro.Content)
+	// fmt.Println("==================================")
 	q := `
 		UPDATE reviews
 		SET shopname = ?, dishname = ?, content = ?, evaluate = ?, bookmark = ?, review_img = ?
