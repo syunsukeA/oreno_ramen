@@ -1,10 +1,10 @@
 package dao
 
 import (
-	"log"
-	_"reflect"
-	"errors"
 	"database/sql"
+	"errors"
+	"log"
+	_ "reflect"
 
 	"github.com/gin-gonic/gin"
 	"github.com/syunsukeA/oreno_ramen/golang/domain/object"
@@ -17,27 +17,65 @@ type Review struct {
 	DB *sqlx.DB
 }
 
-func (r *Review)GetUnvisitedReviews() (ROs []*object.Review){
+func (r *Review) GetLatestReviewByUserID(c *gin.Context, userID int64, num int64) (ros []*object.Review, err error) {
+	ros = []*object.Review{} // レビューのスライスを初期化
+
+	// SQLクエリの作成。userIDで絞り込み、作成日で降順にソートし、上限をnumで設定。
+	q := `
+	SELECT * FROM reviews
+	WHERE user_id = ?
+	ORDER BY created_at DESC
+	LIMIT ?
+	`
+
+	rows, err := r.DB.QueryxContext(c, q, userID, num)
+	if err != nil {
+		// エラーハンドリング
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, nil // データがなければnilを返す
+		}
+		return nil, err
+	}
+	defer rows.Close()
+
+	// 各行を読み込みながらスライスに追加
+	for rows.Next() {
+		ro := new(object.Review)
+		if err := rows.StructScan(ro); err != nil {
+			return nil, err
+		}
+		ros = append(ros, ro)
+	}
+
+	// rows.Err()は、rowsの反復中にエラーが発生した場合にエラーを返す
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return ros, nil
+}
+
+func (r *Review) GetUnvisitedReviews() (ROs []*object.Review) {
 	entity := new(object.Review)
 	ROs = append(ROs, entity)
 	return ROs
 }
 
-func (r *Review)AddReviewAndShop(c *gin.Context, shopID string, userID int64, shopname string, req *object.CreateReviewRequest) (ro *object.Review, err error) {
+func (r *Review) AddReviewAndShop(c *gin.Context, shopID string, userID int64, shopname string, req *object.CreateReviewRequest) (ro *object.Review, err error) {
 	ro = new(object.Review)
 	// トランザクション処理の開始
 	tx, err := r.DB.BeginTxx(c, nil)
 	if err != nil {
-        return nil, err
-    }
+		return nil, err
+	}
 	defer func() {
-        switch r := recover(); {
+		switch r := recover(); {
 		case r != nil:
-            tx.Rollback()
-        case err != nil:
-            tx.Rollback()
+			tx.Rollback()
+		case err != nil:
+			tx.Rollback()
 		}
-    }()
+	}()
 	so := new(object.Shop)
 	// shopに該当データがあるか確認
 	q := `SELECT * from shops WHERE shop_id = ?`
@@ -88,7 +126,7 @@ func (r *Review)AddReviewAndShop(c *gin.Context, shopID string, userID int64, sh
 	return ro, nil
 }
 
-func (r *Review)FindReviewsByShopID(c *gin.Context, userID int64, shopID string) (ros []*object.Review, err error){
+func (r *Review) FindReviewsByShopID(c *gin.Context, userID int64, shopID string) (ros []*object.Review, err error) {
 	ros = []*object.Review{}
 	ro := new(object.Review)
 	q := `SELECT * FROM reviews WHERE user_id = ? AND shop_id = ? LIMIT 20`
@@ -108,7 +146,7 @@ func (r *Review)FindReviewsByShopID(c *gin.Context, userID int64, shopID string)
 	return ros, err
 }
 
-func (r *Review)UpdateReview(c *gin.Context, ro *object.Review) (roPost *object.Review, err error) {
+func (r *Review) UpdateReview(c *gin.Context, ro *object.Review) (roPost *object.Review, err error) {
 	roPost = new(object.Review)
 	q := `
 		UPDATE reviews
@@ -139,25 +177,25 @@ func (r *Review)UpdateReview(c *gin.Context, ro *object.Review) (roPost *object.
 	return roPost, nil
 }
 
-func (r *Review)RemoveReviewAndShop(c *gin.Context, userID int64, shopID string, reviewID int64) (ro *object.Review, err error) {
+func (r *Review) RemoveReviewAndShop(c *gin.Context, userID int64, shopID string, reviewID int64) (ro *object.Review, err error) {
 	ro = new(object.Review)
 	// トランザクション処理の開始
 	tx, err := r.DB.BeginTxx(c, nil)
 	if err != nil {
-        return nil, err
-    }
+		return nil, err
+	}
 	// defer内で戻り値の変更 (エラーハンドリング) はできないっぽいのでlogに吐き出す
 	defer func() {
-        switch r := recover(); {
+		switch r := recover(); {
 		case r != nil:
-            tx.Rollback()
-        case err != nil:
-            tx.Rollback()
+			tx.Rollback()
+		case err != nil:
+			tx.Rollback()
 		case ro == nil:
 			tx.Rollback()
 			log.Println(sql.ErrNoRows)
 		}
-    }()
+	}()
 	// Exexでreviewを削除
 	q := `DELETE FROM reviews WHERE user_id = ? AND shop_id = ? AND review_id = ?`
 	res, err := tx.ExecContext(c, q, userID, shopID, reviewID)
@@ -189,7 +227,7 @@ func (r *Review)RemoveReviewAndShop(c *gin.Context, userID int64, shopID string,
 		if err != nil {
 			return nil, err
 		}
-		// ToDo: resのRowAffectedでエラーハンドリングすべきかも？		
+		// ToDo: resのRowAffectedでエラーハンドリングすべきかも？
 		_, err = res.RowsAffected()
 		if err != nil {
 			return nil, err

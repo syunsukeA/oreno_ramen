@@ -1,12 +1,12 @@
 package handler
 
 import (
+	"encoding/json"
 	"io"
 	"log"
-	"strconv"
 	"net/http"
 	"net/url"
-	"encoding/json"
+	"strconv"
 
 	"github.com/syunsukeA/oreno_ramen/golang/domain/object"
 	"github.com/syunsukeA/oreno_ramen/golang/domain/repository"
@@ -17,6 +17,54 @@ import (
 type HReview struct {
 	Ur repository.User
 	Rr repository.Review
+}
+
+func (h *HReview) HomeReview(c *gin.Context) {
+	w := c.Writer
+
+	username := c.Param("username")
+	user, err := h.Ur.FindByUsername(c, username)
+	if err != nil {
+		c.Writer.WriteHeader(http.StatusInternalServerError)
+		log.Println(err)
+		return
+	}
+	if user == nil {
+		c.Writer.WriteHeader(http.StatusBadRequest)
+		log.Println(err)
+		return
+	}
+
+	// userIDから関連するレビューを取得
+	reviews, err := h.Rr.GetLatestReviewByUserID(c, user.UserID, 10)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		log.Println(err)
+		return
+	}
+
+	log.Println("==========================================")
+	log.Println("==========================================")
+	log.Println("==========================================")
+	log.Println(reviews)
+	log.Println("==========================================")
+	log.Println("==========================================")
+	log.Println("==========================================")
+
+	// レビューがない場合
+	if len(reviews) == 0 {
+		w.WriteHeader(http.StatusNoContent)
+		return
+	}
+
+	// ResponseBodyに書き込み
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Add("Content-Type", "charset=utf-8")
+	if err := json.NewEncoder(w).Encode(reviews); err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		log.Println(err)
+		return
+	}
 }
 
 func (h *HReview) CreateReview(c *gin.Context) {
@@ -34,7 +82,7 @@ func (h *HReview) CreateReview(c *gin.Context) {
 	shop_id := c.Param("shop_id")
 	// HotPepper APIで shop_idが存在するか判定する
 	params := url.Values{}
-    params.Add("key", HP_API_KEY)
+	params.Add("key", HP_API_KEY)
 	params.Add("id", shop_id)
 	params.Add("format", "json")
 	urls := "http://webservice.recruit.co.jp/hotpepper/gourmet/v1/?" + params.Encode()
@@ -60,7 +108,7 @@ func (h *HReview) CreateReview(c *gin.Context) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	
+
 	log.Println(shop_id)
 	user, err := h.Ur.FindByUsername(c, username) // ToDo: usernameからUser情報を検索して返すDBコマンドの作成
 	if err != nil {
@@ -118,7 +166,7 @@ func (h *HReview) UpdateReview(c *gin.Context) {
 	// ToDo: reviewを修正する処理の実装
 	var err error
 	ro, err = h.Rr.UpdateReview(c, ro)
-	if err != nil{
+	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		log.Println(err)
 		return
