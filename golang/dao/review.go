@@ -17,6 +17,19 @@ type Review struct {
 	DB *sqlx.DB
 }
 
+func (r *Review)FindByReviewID(c *gin.Context, reviewID int64) (ro *object.Review, err error) {
+	ro = new(object.Review)
+	q := `SELECT * from reviews where review_id = ?`
+	err = r.DB.QueryRowxContext(c, q, reviewID).StructScan(ro)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return ro, nil
+}
+
 func (r *Review)GetUnvisitedReviews() (ROs []*object.Review){
 	entity := new(object.Review)
 	ROs = append(ROs, entity)

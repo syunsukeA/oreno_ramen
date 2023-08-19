@@ -19,6 +19,7 @@ type Review struct {
 }
 
 type CreateReviewRequest struct {
+	ShopID string `json:"shop_id"`
 	DishName string
 	Content string
 	Evaluate uint

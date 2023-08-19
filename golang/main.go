@@ -65,30 +65,33 @@ func main() {
         "*",
     },
   }))
-  rt.GET("/", internal.GetShoplist)
-  rt.POST("/signin", internal.GetShoplist)
+  rt.GET("/", internal.GetShoplist) // ToDo: リダイレクト処理...？でも今回フロントから叩いてるからいらないか。
+  // sign API
   rt.POST("/signup", internal.GetShoplist)
-  rt.POST("/signout", internal.GetShoplist)
-  userRt := rt.Group("/:username")
+  //  profile API
+  profRt := rt.Group("/profile")
   {
-    userRt.GET("/profile", internal.GetShoplist)
-    userRt.POST("/profile", internal.GetShoplist)
-    userRt.GET("/home", internal.GetShoplist)
-    searchRt := userRt.Group("/search")
-    searchRt.Use(hAuth.AuthenticationMiddleware())
-    {
-      h := handler.HSearch{Sr: &sr, Ur: &ur, Rr: &rr}
-      searchRt.GET("/visited", h.SearchVisited)
-      searchRt.GET("/unvisited", h.SearchUnvisited)
-    }
-    reviewRt := userRt.Group("/:shop_id")
+    profRt.GET("/", internal.GetShoplist)
+    profRt.POST("/", internal.GetShoplist)
+  }
+  // search API
+  searchRt := rt.Group("/search")
+  searchRt.Use(hAuth.AuthenticationMiddleware())
+  {
+    h := handler.HSearch{Sr: &sr, Ur: &ur, Rr: &rr}
+    searchRt.GET("/visited", h.SearchVisited)
+    searchRt.GET("/unvisited", h.SearchUnvisited)
+  }
+  // review API
+  reviewRt := rt.Group("/")
+  reviewRt.Use(hAuth.AuthenticationMiddleware())
     {
       h := handler.HReview{Rr: &rr, Ur: &ur}
+      reviewRt.GET("/home", internal.GetShoplist)
       reviewRt.POST("/review", h.CreateReview)
       reviewRt.GET("/:review_id", internal.GetShoplist)
       reviewRt.POST("/:review_id", h.UpdateReview)
       reviewRt.DELETE("/:review_id", h.RemoveReview)
     }
-  }
   rt.Run(fmt.Sprintf(":%d", port))
 }

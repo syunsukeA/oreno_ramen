@@ -31,20 +31,17 @@ Visitedが一番意見が食い違っていそう。
 func (h *HSearch) SearchVisited(c *gin.Context){
 	r := c.Request
 	w := c.Writer
-	// URLからusernameを取得
-	username := c.Param("username")
-	// usernameからUser情報を検索
-	user, err := h.Ur.FindByUsername(c, username)
-	if err != nil {
+
+	// ctxから認証済みuser情報を取得
+	authedUo, exists := c.Get("authedUo")
+	// authedUo情報がない場合はAuthミドルウェアでHTTPRessponse返しているはずなのでexists==falseはありえないが念の為チェック
+	if !exists {
 		w.WriteHeader(http.StatusInternalServerError)
-		log.Println(err)
+		log.Println("Something wrong in Auth-Middleware")
 		return
 	}
-	if user == nil {
-		w.WriteHeader(http.StatusBadRequest)
-		log.Println(err)
-		return
-	}
+	uo, _ := authedUo.(*object.User)
+
 	// queryパラメータ判定
 	lat := r.URL.Query().Get("lat") 
 	lng := r.URL.Query().Get("lng")
@@ -87,7 +84,7 @@ func (h *HSearch) SearchVisited(c *gin.Context){
 		searchedIDs = append(searchedIDs, shop.ID)
 	}
 	// 外部APIから検索したshop_idとuser_idを受け取ってunvisitedなshop_idを返す
-	visitedIDs, err := h.Sr.GetVisitedShopIDs(c, searchedIDs, user.UserID)
+	visitedIDs, err := h.Sr.GetVisitedShopIDs(c, searchedIDs, uo.UserID)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		log.Println(err)
@@ -100,7 +97,7 @@ func (h *HSearch) SearchVisited(c *gin.Context){
 			if shop.ID == visitedID {
 				// shopIDからreviewを (現状最大20件) 引っ張ってくる
 				log.Println("shop id: ", shop.ID)
-				reviews, err := h.Rr.FindReviewsByShopID(c, user.UserID, shop.ID)
+				reviews, err := h.Rr.FindReviewsByShopID(c, uo.UserID, shop.ID)
 				log.Println("esc", reviews)
 				if err != nil {
 					w.WriteHeader(http.StatusInternalServerError)
@@ -130,20 +127,17 @@ func (h *HSearch) SearchVisited(c *gin.Context){
 func (h *HSearch) SearchUnvisited(c *gin.Context){
 	r := c.Request
 	w := c.Writer
-	// URLからusernameを取得
-	username := c.Param("username")
-	// usernameからUser情報を検索
-	user, err := h.Ur.FindByUsername(c, username)
-	if err != nil {
+
+	// ctxから認証済みuser情報を取得
+	authedUo, exists := c.Get("authedUo")
+	// authedUo情報がない場合はAuthミドルウェアでHTTPRessponse返しているはずなのでexists==falseはありえないが念の為チェック
+	if !exists {
 		w.WriteHeader(http.StatusInternalServerError)
-		log.Println(err)
+		log.Println("Something wrong in Auth-Middleware")
 		return
 	}
-	if user == nil {
-		w.WriteHeader(http.StatusBadRequest)
-		log.Println(err)
-		return
-	}
+	uo, _ := authedUo.(*object.User)
+
 	// queryパラメータ判定
 	lat := r.URL.Query().Get("lat") 
 	lng := r.URL.Query().Get("lng")
@@ -186,7 +180,7 @@ func (h *HSearch) SearchUnvisited(c *gin.Context){
 		searchedIDs = append(searchedIDs, shop.ID)
 	}
 	// 外部APIから検索したshop_idとuser_idを受け取ってunvisitedなshop_idを返す
-	visitedIDs, err := h.Sr.GetVisitedShopIDs(c, searchedIDs, user.UserID)
+	visitedIDs, err := h.Sr.GetVisitedShopIDs(c, searchedIDs, uo.UserID)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		log.Println(err)

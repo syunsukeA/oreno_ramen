@@ -22,6 +22,17 @@ type HReview struct {
 func (h *HReview) CreateReview(c *gin.Context) {
 	r := c.Request
 	w := c.Writer
+
+	// ctxから認証済みuser情報を取得
+	authedUo, exists := c.Get("authedUo")
+	// authedUo情報がない場合はAuthミドルウェアでHTTPRessponse返しているはずなのでexists==falseはありえないが念の為チェック
+	if !exists {
+		w.WriteHeader(http.StatusInternalServerError)
+		log.Println("Something wrong in Auth-Middleware")
+		return
+	}
+	uo, _ := authedUo.(*object.User)
+
 	// reqBodyからreview情報取得
 	req := new(object.CreateReviewRequest)
 	if err := json.NewDecoder(r.Body).Decode(req); err != nil {
@@ -29,13 +40,11 @@ func (h *HReview) CreateReview(c *gin.Context) {
 		log.Println(err)
 		return
 	}
-	// URLからusername、shop_idを取得
-	username := c.Param("username")
-	shop_id := c.Param("shop_id")
+
 	// HotPepper APIで shop_idが存在するか判定する
 	params := url.Values{}
     params.Add("key", HP_API_KEY)
-	params.Add("id", shop_id)
+	params.Add("id", req.ShopID)
 	params.Add("format", "json")
 	urls := "http://webservice.recruit.co.jp/hotpepper/gourmet/v1/?" + params.Encode()
 	resp, err := http.Get(urls)
@@ -60,22 +69,9 @@ func (h *HReview) CreateReview(c *gin.Context) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	
-	log.Println(shop_id)
-	user, err := h.Ur.FindByUsername(c, username) // ToDo: usernameからUser情報を検索して返すDBコマンドの作成
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		log.Println(err)
-		return
-	}
-	if user == nil {
-		w.WriteHeader(http.StatusBadRequest)
-		log.Println(err)
-		return
-	}
 	// reviewを追加 (shopになければshopにも追加)
 	// ToDo: 引数多いのでどうにかできたらしたい
-	ro, err := h.Rr.AddReviewAndShop(c, shop_id, user.UserID, hpShops[0].Name, req)
+	ro, err := h.Rr.AddReviewAndShop(c, req.ShopID, uo.UserID, hpShops[0].Name, req)
 	if err != nil || ro == nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		log.Println(err)
@@ -88,6 +84,16 @@ func (h *HReview) CreateReview(c *gin.Context) {
 func (h *HReview) UpdateReview(c *gin.Context) {
 	r := c.Request
 	w := c.Writer
+
+	// ctxから認証済みuser情報を取得
+	authedUo, exists := c.Get("authedUo")
+	// authedUo情報がない場合はAuthミドルウェアでHTTPRessponse返しているはずなのでexists==falseはありえないが念の為チェック
+	if !exists {
+		w.WriteHeader(http.StatusInternalServerError)
+		log.Println("Something wrong in Auth-Middleware")
+		return
+	}
+	uo, _ := authedUo.(*object.User)
 	// reqBodyからreview情報取得
 	ro := new(object.Review)
 	if err := json.NewDecoder(r.Body).Decode(ro); err != nil {
@@ -95,27 +101,15 @@ func (h *HReview) UpdateReview(c *gin.Context) {
 		log.Println(err)
 		return
 	}
-	// URLからusername、shop_idを取得
-	// username := c.Param("username")（reviweそのまま送ってくれればいらなそうなのでとりあえずコメントアウト）
-	// ToDo: リソース表現のためにURLにも一応入れてもらうが、reqBodyでとったほうが楽なのでそっちで取得？
-	// shop_id := c.Param("shop_id")
-	// review_id := c.Param("review_id")
 
-	// usernameからuser情報を取得（reviweそのまま送ってくれればいらなそうなのでとりあえずコメントアウト）
-	// user, err := h.Ur.FindByUsername(c, username)
-	// if err != nil {
-	// 	w.WriteHeader(http.StatusInternalServerError)
-	// 	log.Println(err)
-	// 	return
-	// }
-	// if user == nil {
-	// 	w.WriteHeader(http.StatusBadRequest)
-	// 	log.Println(err)
-	// 	return
-	// }
-	// reqBodyに不足している情報の補足（reviweそのまま送ってくれればいらなそうなのでとりあえずコメントアウト）
-	// ro.UserID = user.UserID
-	// ToDo: reviewを修正する処理の実装
+	// 認可の確認
+	if uo.UserID != ro.UserID {
+		w.WriteHeader(http.StatusForbidden)
+		log.Println(http.StatusForbidden)
+		return
+	}
+	
+	// reviewの修正
 	var err error
 	ro, err = h.Rr.UpdateReview(c, ro)
 	if err != nil{
@@ -140,29 +134,46 @@ func (h *HReview) UpdateReview(c *gin.Context) {
 func (h *HReview) RemoveReview(c *gin.Context) {
 	// r := c.Request
 	w := c.Writer
-	// URLからusername、shop_id, review_idを取得
-	username := c.Param("username")
-	shop_id := c.Param("shop_id")
-	review_id, err := strconv.ParseInt(c.Param("review_id"), 10, 64)
+
+	// ctxから認証済みuser情報を取得
+	authedUo, exists := c.Get("authedUo")
+	// authedUo情報がない場合はAuthミドルウェアでHTTPRessponse返しているはずなのでexists==falseはありえないが念の為チェック
+	if !exists {
+		w.WriteHeader(http.StatusInternalServerError)
+		log.Println("Something wrong in Auth-Middleware")
+		return
+	}
+	uo, _ := authedUo.(*object.User)
+	// URLからreview_idを取得
+	reviewID, err := strconv.ParseInt(c.Param("review_id"), 10, 64)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		log.Println(err)
 		return
 	}
-	// usernameからuser情報を検索
-	user, err := h.Ur.FindByUsername(c, username)
+	
+	// review_idからobject.Reviewを検索
+	ro, err := h.Rr.FindByReviewID(c, reviewID)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		log.Println(err)
 		return
 	}
-	if user == nil {
+	if ro == nil {
 		w.WriteHeader(http.StatusBadRequest)
 		log.Println(err)
 		return
 	}
+
+	// 認可判定
+	if ro.UserID != uo.UserID {
+		w.WriteHeader(http.StatusForbidden)
+		log.Println(http.StatusForbidden)
+		return
+	}
+
 	// reviewを削除 (reviewが0になったらshopsからも削除)
-	ro, err := h.Rr.RemoveReviewAndShop(c, user.UserID, shop_id, review_id)
+	ro, err = h.Rr.RemoveReviewAndShop(c, ro.UserID, ro.ShopID, ro.ReviewID)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		log.Println(err)

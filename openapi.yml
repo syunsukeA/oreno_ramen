@@ -29,31 +29,6 @@ tags:
       description: Find out more
       url: http://example.com
 paths:
-  /signin:
-    post:
-      tags:
-        - sign
-      summary: (Unnecessary?) Endpoint for signin
-      description: ""
-      # operationId: headHealth  # なにこれ？
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                username:
-                  type: string
-                  example: Koshikawa
-                  description: The username of the account
-                password:
-                  type: string
-                  example: hogehoge
-                  description: Password of user
-        required: true
-      responses:
-        "200":
-          description: OK
   /signup:
     post:
       tags:
@@ -84,39 +59,7 @@ paths:
               schema:
                 type: string
                 example: OK
-  /signout:
-    post:
-      security:
-        - Auth: []
-      tags:
-        - sign
-      summary: (Unnecessary?) Endpoint for signout
-      description: ""
-      # operationId: getHealth
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                username:
-                  type: string
-                  example: Koshikawa
-                  description: The username of the account
-                password:
-                  type: string
-                  example: hogehoge
-                  description: Password of user
-        required: true
-      responses:
-        "200":
-          description: OK
-          content:
-            text/plain:
-              schema:
-                type: string
-                example: OK
-  "/{username}/profile":
+  "/profile":
     get:
       security:
         - Auth: []
@@ -163,7 +106,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Account" # ToDo: 返すべきrefを定義
-  "/{username}/search/visited":
+  "/search/visited":
     get:
       security:
         - Auth: []
@@ -207,7 +150,7 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/HpShop"
-  "/{username}/search/unvisited":
+  "/search/unvisited":
     get:
       security:
         - Auth: []
@@ -251,7 +194,7 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/HpShop"
-  "/{username}/home":
+  "/home":
     get:
       security:
         - Auth: []
@@ -269,7 +212,7 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Relationship" # ToDo: 返すべきrefを定義
-  "/{username}/{shop_id}/review":
+  "/review":
     post:
       security:
         - Auth: []
@@ -278,27 +221,16 @@ paths:
       summary: (Done) Create an review
       description: ""
       # operationId: findRelationships
-      parameters: # ToDo：パラメータの検討&反映
-        - name: username
-          in: path
-          description: The username using servises
-          required: true
-          example: syunsuke
-          schema:
-            type: string
-        - name: shop_id
-          in: path
-          description: The Hotpepper ShopID
-          required: true
-          example: "J000010296"
-          schema:
-            type: string
       requestBody:
         content:
           application/json:
             schema:
               type: object
               properties:
+                shop_id:
+                  type: string
+                  example: "J000010296"
+                  description: The Hotpepper ShopID
                 dishname:
                   type: string
                   example: 醤油ラーメン
@@ -319,7 +251,7 @@ paths:
       responses:
         "204":
           description: No Content
-  "/{username}/{shop_id}/{review_id}":
+  "/{review_id}":
     get:
       security:
         - Auth: []
@@ -351,20 +283,6 @@ paths:
       description: ""
       # operationId: findRelationships
       parameters:
-        - name: username
-          in: path
-          description: The username using servises
-          required: true
-          example: syunsuke
-          schema:
-            type: string
-        - name: shop_id
-          in: path
-          description: The Hotpepper ShopID
-          required: true
-          example: "J000010296"
-          schema:
-            type: string
         - name: review_id
           in: path
           description: Review id
@@ -389,20 +307,6 @@ paths:
       description: ""
       # operationId: findRelationships
       parameters:
-        - name: username
-          in: path
-          description: The username using servises
-          required: true
-          example: syunsuke
-          schema:
-            type: string
-        - name: shop_id
-          in: path
-          description: The Hotpepper ShopID
-          required: true
-          example: "J000010296"
-          schema:
-            type: string
         - name: review_id
           in: path
           description: Review id
