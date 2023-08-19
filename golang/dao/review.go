@@ -86,14 +86,16 @@ func (r *Review)AddReviewAndShop(c *gin.Context, shopID string, userID int64, sh
 	if err != nil {
 		return nil, err
 	}
-	// ToDo: もしかしたらこの辺の処理いらないかも？
-	nrows, err := res.RowsAffected()
+	reviewID, err := res.LastInsertId()
 	if err != nil {
 		return nil, err
 	}
-	if nrows <= 0 {
-		return nil, sql.ErrNoRows
+	q = `SELECT * from reviews WHERE review_id = ?`
+	err = tx.QueryRowxContext(c, q, reviewID).StructScan(ro)
+	if err != nil {
+		return nil, err
 	}
+
 	// トランザクション処理をコミット
 	if err = tx.Commit(); err != nil {
 		return nil, err

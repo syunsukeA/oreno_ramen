@@ -33,13 +33,36 @@ func (h *HReview) CreateReview(c *gin.Context) {
 	}
 	uo, _ := authedUo.(*object.User)
 
-	// reqBodyからreview情報取得
 	req := new(object.CreateReviewRequest)
-	if err := json.NewDecoder(r.Body).Decode(req); err != nil {
+	// reqBodyからreview情報取得
+	// if err := json.NewDecoder(r.Body).Decode(req); err != nil {
+	// 	w.WriteHeader(http.StatusBadRequest)
+	// 	log.Println(err)
+	// 	return
+	// }
+
+	// formから値を取得
+	var err error
+	req.ShopID = r.FormValue("shop_id")
+	req.DishName = r.FormValue("dish_name")
+	req.Content = r.FormValue("content")
+	uint64_eval, err := strconv.ParseUint(r.FormValue("evaluate"), 10, 64)
+	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		log.Println(err)
 		return
 	}
+	req.Evaluate = uint(uint64_eval)
+
+	// ctxからimg_urlを取得
+	imgURL, exists := c.Get("img_url")
+	// imgURLがない場合はerr
+	if !exists {
+		w.WriteHeader(http.StatusInternalServerError)
+		log.Println("Something wrong on img-uploading")
+		return
+	}
+	req.ReviewImg = imgURL.(string)
 
 	// HotPepper APIで shop_idが存在するか判定する
 	params := url.Values{}
@@ -71,14 +94,22 @@ func (h *HReview) CreateReview(c *gin.Context) {
 	}
 	// reviewを追加 (shopになければshopにも追加)
 	// ToDo: 引数多いのでどうにかできたらしたい
+	log.Println("req: ", req)
 	ro, err := h.Rr.AddReviewAndShop(c, req.ShopID, uo.UserID, hpShops[0].Name, req)
+	log.Println("ro: ", ro)
 	if err != nil || ro == nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		log.Println(err)
 		return
 	}
-	// ToDo: 必要そうならBodyにreviewの情報を格納して返す
-	w.WriteHeader(http.StatusNoContent)
+	// ResponseBodyに書き込み
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Add("Content-Type", "charset=utf-8")
+	if err := json.NewEncoder(w).Encode(ro); err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		log.Println(err)
+		return
+	}
 }
 
 func (h *HReview) UpdateReview(c *gin.Context) {

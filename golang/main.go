@@ -52,6 +52,7 @@ func main() {
   rr := dao.Review{DB: db}
 
   hAuth := handler.HAuth{Ur: &ur}
+  hImg := handler.HImg{Ur: &ur}
   // EndPointの定義 (ToDo: もう少し長くなりそうなら別関数に切り出してもいいかも？)
 	rt := gin.Default()
   rt.Use(cors.New(cors.Config{
@@ -65,6 +66,13 @@ func main() {
         "*",
     },
   }))
+  // test API
+  testRt := rt.Group("/")
+  testRt.Use(hImg.ImgHandler())
+  {
+    h := handler.HReview{Rr: &rr, Ur: &ur}
+    testRt.POST("/img_test", h.UpdateReview)
+  }
   rt.GET("/", internal.GetShoplist) // ToDo: リダイレクト処理...？でも今回フロントから叩いてるからいらないか。
   // sign API
   rt.POST("/signup", internal.GetShoplist)
@@ -88,9 +96,9 @@ func main() {
     {
       h := handler.HReview{Rr: &rr, Ur: &ur}
       reviewRt.GET("/home", internal.GetShoplist)
-      reviewRt.POST("/review", h.CreateReview)
+      reviewRt.POST("/review", hImg.ImgHandler(), h.CreateReview)
       reviewRt.GET("/:review_id", internal.GetShoplist)
-      reviewRt.POST("/:review_id", h.UpdateReview)
+      reviewRt.POST("/:review_id", hImg.ImgHandler(), h.UpdateReview)
       reviewRt.DELETE("/:review_id", h.RemoveReview)
     }
   rt.Run(fmt.Sprintf(":%d", port))
