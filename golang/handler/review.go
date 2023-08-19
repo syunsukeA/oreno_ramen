@@ -1,12 +1,12 @@
 package handler
 
 import (
+	"encoding/json"
 	"io"
 	"log"
-	"strconv"
 	"net/http"
 	"net/url"
-	"encoding/json"
+	"strconv"
 
 	"github.com/syunsukeA/oreno_ramen/golang/domain/object"
 	"github.com/syunsukeA/oreno_ramen/golang/domain/repository"
@@ -17,6 +17,53 @@ import (
 type HReview struct {
 	Ur repository.User
 	Rr repository.Review
+}
+
+func (h *HReview) HomeReview(c *gin.Context) {
+	w := c.Writer
+
+	// リクエストボディからオフセットを取得
+	offsetStr := c.DefaultQuery("offset", "0")
+	offset, err := strconv.Atoi(offsetStr)
+	if err != nil || offset < 0 {
+		c.Writer.WriteHeader(http.StatusBadRequest)
+		log.Println(err)
+		return
+	}
+
+	// ctxから認証済みuser情報を取得
+	authedUo, exists := c.Get("authedUo")
+	// authedUo情報がない場合はAuthミドルウェアでHTTPRessponse返しているはずなのでexists==falseはありえないが念の為チェック
+	if !exists {
+		w.WriteHeader(http.StatusInternalServerError)
+		log.Println("Something wrong in Auth-Middleware")
+		return
+	}
+	uo, _ := authedUo.(*object.User)
+
+	// userIDから関連するレビューを取得
+	number_reviews := 10 + offset
+	reviews, err := h.Rr.GetLatestReviewByUserID(c, uo.UserID, int64(number_reviews))
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		log.Println(err)
+		return
+	}
+
+	// レビューがない場合
+	if len(reviews) == 0 {
+		w.WriteHeader(http.StatusNoContent)
+		return
+	}
+
+	// ResponseBodyに書き込み
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Add("Content-Type", "charset=utf-8")
+	if err := json.NewEncoder(w).Encode(reviews); err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		log.Println(err)
+		return
+	}
 }
 
 func (h *HReview) CreateReview(c *gin.Context) {
@@ -66,7 +113,7 @@ func (h *HReview) CreateReview(c *gin.Context) {
 
 	// HotPepper APIで shop_idが存在するか判定する
 	params := url.Values{}
-    params.Add("key", HP_API_KEY)
+	params.Add("key", HP_API_KEY)
 	params.Add("id", req.ShopID)
 	params.Add("format", "json")
 	urls := "http://webservice.recruit.co.jp/hotpepper/gourmet/v1/?" + params.Encode()
@@ -139,11 +186,11 @@ func (h *HReview) UpdateReview(c *gin.Context) {
 		log.Println(http.StatusForbidden)
 		return
 	}
-	
+
 	// reviewの修正
 	var err error
 	ro, err = h.Rr.UpdateReview(c, ro)
-	if err != nil{
+	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		log.Println(err)
 		return
@@ -182,7 +229,7 @@ func (h *HReview) RemoveReview(c *gin.Context) {
 		log.Println(err)
 		return
 	}
-	
+
 	// review_idからobject.Reviewを検索
 	ro, err := h.Rr.FindByReviewID(c, reviewID)
 	if err != nil {

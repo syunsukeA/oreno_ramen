@@ -231,6 +231,14 @@ paths:
         - review
       summary: (not implemented yet) Getting reviews (under the user? should named as reviews? need discussion)
       description: ""
+      parameters:
+        - name: offset
+          in: query
+          description: offset
+          example: "3"
+          required: true
+          schema:
+            type: string
       # operationId: findRelationships
       responses:
         "200":
