@@ -22,6 +22,15 @@ type HReview struct {
 func (h *HReview) HomeReview(c *gin.Context) {
 	w := c.Writer
 
+	// リクエストボディからオフセットを取得
+	offsetStr := c.DefaultQuery("offset", "0")
+	offset, err := strconv.Atoi(offsetStr)
+	if err != nil || offset < 0 {
+		c.Writer.WriteHeader(http.StatusBadRequest)
+		log.Println(err)
+		return
+	}
+
 	username := c.Param("username")
 	user, err := h.Ur.FindByUsername(c, username)
 	if err != nil {
@@ -36,20 +45,13 @@ func (h *HReview) HomeReview(c *gin.Context) {
 	}
 
 	// userIDから関連するレビューを取得
-	reviews, err := h.Rr.GetLatestReviewByUserID(c, user.UserID, 10)
+	number_reviews := 10 + offset
+	reviews, err := h.Rr.GetLatestReviewByUserID(c, user.UserID, int64(number_reviews))
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		log.Println(err)
 		return
 	}
-
-	log.Println("==========================================")
-	log.Println("==========================================")
-	log.Println("==========================================")
-	log.Println(reviews)
-	log.Println("==========================================")
-	log.Println("==========================================")
-	log.Println("==========================================")
 
 	// レビューがない場合
 	if len(reviews) == 0 {
