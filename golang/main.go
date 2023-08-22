@@ -101,5 +101,12 @@ func main() {
 		reviewRt.POST("/:review_id", hImg.ImgHandler(), h.UpdateReview)
 		reviewRt.DELETE("/:review_id", h.RemoveReview)
 	}
+	// image API
+	imgRt := rt.Group("/img")
+	// 認証あった方がいい気がしなくもないけど、URLの取得多分できないだろうしまぁいいかな。
+	// imgRt.Use(hAuth.AuthenticationMiddleware())
+	{
+		imgRt.GET("/:filename", hImg.ShowImg)
+	}
 	rt.Run(fmt.Sprintf(":%d", port))
 }
