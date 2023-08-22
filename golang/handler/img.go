@@ -30,6 +30,7 @@ func (h *HImg)ImgHandler() gin.HandlerFunc {
 		err := r.ParseMultipartForm(10 << 20) // 最大10MBのファイルサイズを許容
 		if err != nil {
 			log.Println("Unable to parse form data")
+			log.Println(err)
 			w.WriteHeader(http.StatusBadRequest)
 			c.Abort()
 			return
@@ -38,6 +39,7 @@ func (h *HImg)ImgHandler() gin.HandlerFunc {
 		file, header, err := r.FormFile("review_img")
 		if err != nil {
 			log.Println("Error retrieving the file")
+			log.Println(err)
 			w.WriteHeader(http.StatusBadRequest)
 			c.Abort()
 			return
@@ -81,6 +83,12 @@ func (h *HImg) ShowImg(c *gin.Context) {
 	filename := c.Param("filename")
 
 	// ファイルシステムから画像データを取得
+	/*
+	ToDo: エラーハンドリングしっかりする
+		・404: 画像がない場合
+		・500: サーバー側のエラーの場合
+		・etc...
+	*/ 
 	imgFilePath := fmt.Sprintf("%s/%s", img_dir_path, filename)
 	imgFile, err := os.Open(imgFilePath)
 	if err != nil {
