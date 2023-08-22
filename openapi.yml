@@ -30,34 +30,12 @@ tags:
     externalDocs:
       description: Find out more
       url: http://example.com
+  - name: image
+    description: Everything about Imege
+    externalDocs:
+      description: Find out more
+      url: http://example.com
 paths:
-  /img_test:
-    post:
-      tags:
-        - test
-      summary: (Done) Endpoint for signup
-      description: ""
-      # operationId: getHealth
-      requestBody:
-        content:
-          multipart/form-data:
-            schema:
-              type: object
-              properties:
-                filename:
-                  type: string
-                file:
-                  type: string
-                  format: binary
-        required: true
-      responses:
-        "200":
-          description: OK
-          content:
-            text/plain:
-              schema:
-                type: string
-                example: OK
   /signup:
     post:
       tags:
@@ -379,6 +357,29 @@ paths:
       responses:
         "200":
           description: OK
+  "/img/{filename}":
+    get:
+      tags:
+        - image
+      summary: Getting image Endpoint
+      description: ""
+      parameters:
+        - name: filename
+          in: path
+          description: filename
+          example: "1692697109185247797.jpg"
+          required: true
+          schema:
+            type: string
+      # operationId: findRelationships
+      responses:
+        "200":
+          description: OK
+          content:
+            image/jpeg:
+              schema:
+                type: string
+                format: binary
 externalDocs:
   description: Find out more about Swagger
   url: http://example.com

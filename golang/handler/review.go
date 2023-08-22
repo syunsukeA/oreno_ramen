@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"io"
 	"log"
+	"fmt"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -81,17 +82,11 @@ func (h *HReview) CreateReview(c *gin.Context) {
 	uo, _ := authedUo.(*object.User)
 
 	req := new(object.CreateReviewRequest)
-	// reqBodyからreview情報取得
-	// if err := json.NewDecoder(r.Body).Decode(req); err != nil {
-	// 	w.WriteHeader(http.StatusBadRequest)
-	// 	log.Println(err)
-	// 	return
-	// }
 
 	// formから値を取得
 	var err error
 	req.ShopID = r.FormValue("shop_id")
-	req.DishName = r.FormValue("dish_name")
+	req.DishName = r.FormValue("dishname")
 	req.Content = r.FormValue("content")
 	uint64_eval, err := strconv.ParseUint(r.FormValue("evaluate"), 10, 64)
 	if err != nil {
@@ -101,15 +96,25 @@ func (h *HReview) CreateReview(c *gin.Context) {
 	}
 	req.Evaluate = uint(uint64_eval)
 
+	log.Println(req)
 	// ctxからimg_urlを取得
-	imgURL, exists := c.Get("img_url")
+	filename, exists := c.Get("img_url")
 	// imgURLがない場合はerr
 	if !exists {
 		w.WriteHeader(http.StatusInternalServerError)
 		log.Println("Something wrong on img-uploading")
 		return
 	}
-	req.ReviewImg = imgURL.(string)
+	// 画像取得エンドポイントのURLを格納
+	/*
+	ToDo: URL設計についてもう少し考える。
+		・サーバーのフォルダ構造をそのままURLにする？
+			・安全性に難あり？
+		・img/<filename>にする？
+			・現状この形
+		・etc...
+	*/
+	req.ReviewImg = fmt.Sprintf("img/%s", filename.(string))
 
 	// HotPepper APIで shop_idが存在するか判定する
 	params := url.Values{}
