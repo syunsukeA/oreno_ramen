@@ -15,7 +15,7 @@ type User struct {
 	DB *sqlx.DB
 }
 
-func (r *User)FindByUsername(c *gin.Context, username string) (uo *object.User, err error) {
+func (r *User) FindByUsername(c *gin.Context, username string) (uo *object.User, err error) {
 	uo = new(object.User)
 	q := `SELECT * from users where username = ?`
 	err = r.DB.QueryRowxContext(c, q, username).StructScan(uo)
@@ -24,6 +24,28 @@ func (r *User)FindByUsername(c *gin.Context, username string) (uo *object.User, 
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, nil
 		}
+		return nil, err
+	}
+
+	return uo, nil
+}
+
+func (r *User) SignupByUsername(c *gin.Context, username string, password string) (uo *object.User, err error) {
+	uo = new(object.User)
+
+	// ユーザーをデータベースに登録
+	q := `INSERT INTO users (username, profile_img, password) VALUES (?, '', ?)`
+	_, err = r.DB.ExecContext(c, q, username, password)
+	if err != nil {
+		log.Println("=========================================")
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, nil
+		}
+	}
+
+	// 登録したユーザーを取得して返す
+	uo, err = r.FindByUsername(c, username)
+	if err != nil {
 		return nil, err
 	}
 

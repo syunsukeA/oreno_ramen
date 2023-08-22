@@ -75,7 +75,8 @@ func main() {
 	}
 	rt.GET("/", internal.GetShoplist) // ToDo: リダイレクト処理...？でも今回フロントから叩いてるからいらないか。
 	// sign API
-	rt.POST("/signup", internal.GetShoplist)
+	hSign := handler.HSign{Ur: &ur}
+	rt.POST("/signup", hSign.SignupUser)
 	//  profile API
 	profRt := rt.Group("/profile")
 	{
