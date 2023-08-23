@@ -227,6 +227,32 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Relationship" # ToDo: 返すべきrefを定義
+  "/home/bookmark":
+    get:
+      security:
+        - Auth: []
+      tags:
+        - review
+      summary: (not implemented yet) Getting bookmark reviews (need discussion)
+      description: ""
+      parameters:
+        - name: offset
+          in: query
+          description: offset
+          example: "3"
+          required: true
+          schema:
+            type: string
+      # operationId: findRelationships
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Relationship" # ToDo: 返すべきrefを定義
   "/review":
     post:
       security:
