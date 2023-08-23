@@ -38,6 +38,12 @@ func (h *HImg)ImgHandler() gin.HandlerFunc {
 		// 1. Fromのファイル情報を取得
 		file, header, err := r.FormFile("review_img")
 		if err != nil {
+			// ファイルがなかったら空文字列を保持するような処理の追加
+			if err == http.ErrMissingFile {
+				log.Printf("Empty image upload is done.")
+				c.Set("imgFilename", "")
+				return
+			}
 			log.Println("Error retrieving the file")
 			log.Println(err)
 			w.WriteHeader(http.StatusBadRequest)
@@ -67,12 +73,13 @@ func (h *HImg)ImgHandler() gin.HandlerFunc {
 		// アップロードしたファイルを保存用のディレクトリにコピーする
 		_, err = io.Copy(dst, file)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			log.Println(err)
+			w.WriteHeader(http.StatusInternalServerError)
+			c.Abort()
 			return
 		}
 		log.Printf("upload OK")
-		c.Set("img_url", filename)
-		// c.Abort()
+		c.Set("imgFilename", filename)
 	}
 }
 

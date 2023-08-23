@@ -3,6 +3,7 @@ package handler
 import (
 	"encoding/json"
 	"io"
+	"os"
 	"log"
 	"fmt"
 	"net/http"
@@ -80,11 +81,8 @@ func (h *HReview) CreateReview(c *gin.Context) {
 		return
 	}
 	uo, _ := authedUo.(*object.User)
-
 	req := new(object.CreateReviewRequest)
-
 	// formから値を取得
-	var err error
 	req.ShopID = r.FormValue("shop_id")
 	req.DishName = r.FormValue("dishname")
 	req.Content = r.FormValue("content")
@@ -98,7 +96,7 @@ func (h *HReview) CreateReview(c *gin.Context) {
 
 	log.Println(req)
 	// ctxからimg_urlを取得
-	filename, exists := c.Get("img_url")
+	filename, exists := c.Get("imgFilename")
 	// imgURLがない場合はerr
 	if !exists {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -106,14 +104,6 @@ func (h *HReview) CreateReview(c *gin.Context) {
 		return
 	}
 	// 画像取得エンドポイントのURLを格納
-	/*
-	ToDo: URL設計についてもう少し考える。
-		・サーバーのフォルダ構造をそのままURLにする？
-			・安全性に難あり？
-		・img/<filename>にする？
-			・現状この形
-		・etc...
-	*/
 	req.ReviewImg = fmt.Sprintf("img/%s", filename.(string))
 
 	// HotPepper APIで shop_idが存在するか判定する
@@ -177,12 +167,55 @@ func (h *HReview) UpdateReview(c *gin.Context) {
 		return
 	}
 	uo, _ := authedUo.(*object.User)
-	// reqBodyからreview情報取得
-	ro := new(object.Review)
-	if err := json.NewDecoder(r.Body).Decode(ro); err != nil {
+	// URLからreview_idを取得
+	reviewID, err := strconv.ParseInt(c.Param("review_id"), 10, 64)
+	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		log.Println(err)
 		return
+	}
+	// review_idからobject.Reviewを検索
+	ro, err := h.Rr.FindByReviewID(c, reviewID)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		log.Println(err)
+		return
+	}
+	if ro == nil {
+		w.WriteHeader(http.StatusBadRequest)
+		log.Println(err)
+		return
+	}
+
+	req := new(object.CreateReviewRequest)
+	// formから値を取得
+	// ToDo: 変更がない場合は空文字列で送るような実装になっているならば修正が必要
+	// req.ShopID = r.FormValue("shop_id")
+	ro.DishName = r.FormValue("dishname")
+	ro.Content = r.FormValue("content")
+	uint64_eval, err := strconv.ParseUint(r.FormValue("evaluate"), 10, 64)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		log.Println(err)
+		return
+	}
+	ro.Evaluate = uint(uint64_eval)
+
+	log.Println(req)
+	// ctxからimg_urlを取得
+	filename, exists := c.Get("imgFilename")
+	// imgURLがない場合はerr
+	if !exists {
+		w.WriteHeader(http.StatusInternalServerError)
+		log.Println("Something wrong on img-uploading")
+		return
+	}
+	// 空文字列ではない場合のみ画像取得エンドポイントのURLを上書き
+	log.Println("filename: ", filename)
+	var deleteFilename string
+	if len(filename.(string)) > 0 {
+		deleteFilename = ro.ReviewImg[4:] // 'img/' を取り除くためのハードコーディング
+		ro.ReviewImg = fmt.Sprintf("img/%s", filename.(string))	
 	}
 
 	// 認可の確認
@@ -193,7 +226,6 @@ func (h *HReview) UpdateReview(c *gin.Context) {
 	}
 
 	// reviewの修正
-	var err error
 	ro, err = h.Rr.UpdateReview(c, ro)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -211,6 +243,19 @@ func (h *HReview) UpdateReview(c *gin.Context) {
 		w.WriteHeader(http.StatusInternalServerError)
 		log.Println(err)
 		return
+	}
+	// 最後までerrがない&filenameが空文字列でないなら画像を削除
+	if len(deleteFilename) > 0 {
+		// deletefilenameを削除するような実装
+		removeFilePath := fmt.Sprintf("%s/%s", img_dir_path, deleteFilename)
+		err := os.Remove(removeFilePath)
+		// errが発生した場合はfilepathをlogに吐くようにする
+		// ToDo: 削除に失敗した場合のさらに良い対処法を考える
+		if err != nil {
+			log.Printf("Remove reeor: '%s' ", removeFilePath)
+			w.WriteHeader(http.StatusInternalServerError)
+			log.Println(err)
+		}
 	}
 }
 

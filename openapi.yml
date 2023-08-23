@@ -332,6 +332,31 @@ paths:
             type: string
       requestBody:
         content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                shop_id:
+                  type: string
+                  example: "J000010296"
+                  description: The Hotpepper ShopID
+                dishname:
+                  type: string
+                  example: 醤油ラーメン
+                  description: The name of the dish write about in the review
+                content:
+                  type: string
+                  example: 太麺で美味しい！
+                  description: Comments of the review
+                evaluate:
+                  type: integer
+                  example: 4
+                  description: evaluate in review (1 to 5)
+                review_img:
+                  type: string
+                  format: binary
+                  description: Photo attaced review
+            required: true
           application/json:
             schema:
               $ref: "#/components/schemas/Review"
