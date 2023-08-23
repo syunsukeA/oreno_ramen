@@ -9,6 +9,7 @@ import (
 type Review interface {
 	FindByReviewID(ctx *gin.Context, reviewID int64) (ro *object.Review, err error)
 	GetLatestReviewByUserID(c *gin.Context, userID int64, num int64) (ros []*object.Review, err error)
+	GetBookMarkReviewByUserID(c *gin.Context, userID int64, num int64) (ros []*object.Review, err error)
 	GetUnvisitedReviews() (ROs []*object.Review)
 	AddReviewAndShop(c *gin.Context, shopID string, userID int64, shopname string, req *object.CreateReviewRequest) (ro *object.Review, err error)
 	FindReviewsByShopID(c *gin.Context, userID int64, shopID string) (ros []*object.Review, err error)

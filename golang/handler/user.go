@@ -17,8 +17,9 @@ type HUser struct {
 }
 
 type UserProfileResponse struct {
-	User    *object.User     `json:"user"`
-	Reviews []*object.Review `json:"reviews"`
+	User            *object.User     `json:"user"`
+	LatestReviews   []*object.Review `json:"latestReviews"`
+	BookMarkReviews []*object.Review `json:"bookmarkReviews"`
 }
 
 func (h *HUser) UserProfile(c *gin.Context) {
@@ -43,8 +44,8 @@ func (h *HUser) UserProfile(c *gin.Context) {
 		return
 	}
 
-	// userIDから関連するレビューを取得
-	reviews, err := h.Rr.GetLatestReviewByUserID(c, uo.UserID, 3)
+	// userIDから関連する最新レビューを取得
+	latestReviews, err := h.Rr.GetLatestReviewByUserID(c, uo.UserID, 3)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		log.Println(err)
@@ -52,15 +53,30 @@ func (h *HUser) UserProfile(c *gin.Context) {
 	}
 
 	// レビューがない場合，404を返す
-	if len(reviews) == 0 {
+	if len(latestReviews) == 0 {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+
+	// userIDから関連するブックマーク付きレビューを取得
+	bookmarkReviews, err := h.Rr.GetBookMarkReviewByUserID(c, uo.UserID, 3)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		log.Println(err)
+		return
+	}
+
+	// レビューがない場合，404を返す
+	if len(bookmarkReviews) == 0 {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
 
 	// ユーザー情報とレビューを結合したレスポンスを生成
 	response := UserProfileResponse{
-		User:    uo,
-		Reviews: reviews,
+		User:            uo,
+		LatestReviews:   latestReviews,
+		BookMarkReviews: bookmarkReviews,
 	}
 
 	// ResponseBodyに書き込み

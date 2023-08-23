@@ -68,6 +68,44 @@ func (r *Review) GetLatestReviewByUserID(c *gin.Context, userID int64, num int64
 	return ros, nil
 }
 
+func (r *Review) GetBookMarkReviewByUserID(c *gin.Context, userID int64, num int64) (ros []*object.Review, err error) {
+	ros = []*object.Review{} // レビューのスライスを初期化
+
+	// SQLクエリの作成。userIDで絞り込み、作成日で降順にソートし、上限をnumで設定。
+	q := `
+	SELECT * FROM reviews
+	WHERE user_id = ? AND bookmark = 1
+	ORDER BY created_at DESC
+	LIMIT ?
+	`
+
+	rows, err := r.DB.QueryxContext(c, q, userID, num)
+	if err != nil {
+		// エラーハンドリング
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, nil // データがなければnilを返す
+		}
+		return nil, err
+	}
+	defer rows.Close()
+
+	// 各行を読み込みながらスライスに追加
+	for rows.Next() {
+		ro := new(object.Review)
+		if err := rows.StructScan(ro); err != nil {
+			return nil, err
+		}
+		ros = append(ros, ro)
+	}
+
+	// rows.Err()は、rowsの反復中にエラーが発生した場合にエラーを返す
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return ros, nil
+}
+
 func (r *Review) GetUnvisitedReviews() (ROs []*object.Review) {
 	entity := new(object.Review)
 	ROs = append(ROs, entity)
