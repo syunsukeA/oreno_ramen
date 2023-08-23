@@ -427,7 +427,7 @@ paths:
         - Auth: []
       tags:
         - home
-      summary: (not implemented yet) Getting bookmark reviews filtered by Evaluate (need discussion)
+      summary: (not implemented yet) Getting reviews filtered by Evaluate (need discussion)
       description: ""
       parameters:
         - name: lower
@@ -460,7 +460,7 @@ paths:
         - Auth: []
       tags:
         - home
-      summary: (not implemented yet) Getting bookmark reviews filtered by Evaluate (need discussion)
+      summary: (not implemented yet) Getting reviews filtered by period (need discussion)
       description: ""
       parameters:
         - name: lower
@@ -474,6 +474,32 @@ paths:
           in: query
           description: upper
           example: "2023-08-23"
+          required: true
+          schema:
+            type: string
+      # operationId: findRelationships
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Relationship" # ToDo: 返すべきrefを定義
+  "/home/shop":
+    get:
+      security:
+        - Auth: []
+      tags:
+        - home
+      summary: (not implemented yet) Getting shops (need discussion)
+      description: ""
+      parameters:
+        - name: offset
+          in: query
+          description: offset
+          example: "3"
           required: true
           schema:
             type: string
