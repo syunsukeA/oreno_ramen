@@ -513,6 +513,32 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Relationship" # ToDo: 返すべきrefを定義
+  "/home/shop/bookmark":
+    get:
+      security:
+        - Auth: []
+      tags:
+        - home
+      summary: (not implemented yet) Getting bookmark shops (need discussion)
+      description: ""
+      parameters:
+        - name: offset
+          in: query
+          description: offset
+          example: "3"
+          required: true
+          schema:
+            type: string
+      # operationId: findRelationships
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Relationship" # ToDo: 返すべきrefを定義
   "/img/{filename}":
     get:
       tags:

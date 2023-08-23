@@ -78,3 +78,41 @@ func (s *Shop) GetLatestShopByUserID(c *gin.Context, userID int64, num int64) (s
 
 	return sos, nil
 }
+
+func (s *Shop) GetBookmarkShopByUserID(c *gin.Context, userID int64, num int64) (sos []*object.Shop, err error) {
+	sos = []*object.Shop{} // お店のスライスを初期化
+
+	// SQLクエリの作成。userIDで絞り込み、作成日で降順にソートし、上限をnumで設定。
+	q := `
+	SELECT * FROM shops
+	WHERE user_id = ? AND bookmark = 1
+	ORDER BY created_at DESC
+	LIMIT ?
+	`
+
+	rows, err := s.DB.QueryxContext(c, q, userID, num)
+	if err != nil {
+		// エラーハンドリング
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, nil // データがなければnilを返す
+		}
+		return nil, err
+	}
+	defer rows.Close()
+
+	// 各行を読み込みながらスライスに追加
+	for rows.Next() {
+		so := new(object.Shop)
+		if err := rows.StructScan(so); err != nil {
+			return nil, err
+		}
+		sos = append(sos, so)
+	}
+
+	// rows.Err()は、rowsの反復中にエラーが発生した場合にエラーを返す
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return sos, nil
+}

@@ -268,3 +268,50 @@ func (h *HHome) HomeShop(c *gin.Context) {
 		return
 	}
 }
+
+func (h *HHome) HomeBookmarkShop(c *gin.Context) {
+	w := c.Writer
+
+	// リクエストボディからオフセットを取得
+	offsetStr := c.DefaultQuery("offset", "0")
+	offset, err := strconv.Atoi(offsetStr)
+	if err != nil || offset < 0 {
+		c.Writer.WriteHeader(http.StatusBadRequest)
+		log.Println(err)
+		return
+	}
+
+	// ctxから認証済みuser情報を取得
+	authedUo, exists := c.Get("authedUo")
+	// authedUo情報がない場合はAuthミドルウェアでHTTPRessponse返しているはずなのでexists==falseはありえないが念の為チェック
+	if !exists {
+		w.WriteHeader(http.StatusInternalServerError)
+		log.Println("Something wrong in Auth-Middleware")
+		return
+	}
+	uo, _ := authedUo.(*object.User)
+
+	// userIDから関連するお店を取得
+	number_shops := 10 + offset
+	shops, err := h.Sr.GetBookmarkShopByUserID(c, uo.UserID, int64(number_shops))
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		log.Println(err)
+		return
+	}
+
+	// お店がない場合，404を返す
+	if len(shops) == 0 {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+
+	// ResponseBodyに書き込み
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Add("Content-Type", "charset=utf-8")
+	if err := json.NewEncoder(w).Encode(shops); err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		log.Println(err)
+		return
+	}
+}
