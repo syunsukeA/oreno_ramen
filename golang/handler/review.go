@@ -2,12 +2,12 @@ package handler
 
 import (
 	"encoding/json"
-	"io"
-	"os"
-	"log"
 	"fmt"
+	"io"
+	"log"
 	"net/http"
 	"net/url"
+	"os"
 	"strconv"
 
 	"github.com/syunsukeA/oreno_ramen/golang/domain/object"
@@ -52,9 +52,9 @@ func (h *HReview) HomeReview(c *gin.Context) {
 		return
 	}
 
-	// レビューがない場合
+	// レビューがない場合，404を返す
 	if len(reviews) == 0 {
-		w.WriteHeader(http.StatusNoContent)
+		w.WriteHeader(http.StatusNotFound)
 		return
 	}
 
@@ -70,9 +70,9 @@ func (h *HReview) HomeReview(c *gin.Context) {
 
 /*
 ToDo
+
 	errが起きた場合は最初に作成した画像は削除する必要がある。
 	defer文等でキャッチして挿入画像を削除するような実装が必要
-
 */
 func (h *HReview) CreateReview(c *gin.Context) {
 	// サーバー内画像のトランザクション
@@ -82,8 +82,8 @@ func (h *HReview) CreateReview(c *gin.Context) {
 			c.Writer.WriteHeader(http.StatusInternalServerError)
 		}
 		/*
-		異常ステータスで終了していた場合の処理。
-		どのステータスが異常かは各ハンドラ関数ごとに異なるので注意！！
+			異常ステータスで終了していた場合の処理。
+			どのステータスが異常かは各ハンドラ関数ごとに異なるので注意！！
 		*/
 		if c.Writer.Status() != http.StatusOK {
 			deleteFilename, exists := c.Get("imgFilename")
@@ -193,9 +193,9 @@ func (h *HReview) CreateReview(c *gin.Context) {
 
 /*
 ToDo
+
 	errが起きた場合は最初に作成した画像は削除する必要がある。
 	defer文等でキャッチして挿入画像を削除するような実装が必要
-
 */
 func (h *HReview) UpdateReview(c *gin.Context) {
 	// サーバー内画像のトランザクション
@@ -205,8 +205,8 @@ func (h *HReview) UpdateReview(c *gin.Context) {
 			c.Writer.WriteHeader(http.StatusInternalServerError)
 		}
 		/*
-		異常ステータスで終了していた場合の処理。
-		どのステータスが異常かは各ハンドラ関数ごとに異なるので注意！！
+			異常ステータスで終了していた場合の処理。
+			どのステータスが異常かは各ハンドラ関数ごとに異なるので注意！！
 		*/
 		if c.Writer.Status() != http.StatusOK {
 			deleteFilename, exists := c.Get("imgFilename")
@@ -289,7 +289,7 @@ func (h *HReview) UpdateReview(c *gin.Context) {
 	var deleteFilename string
 	if len(filename.(string)) > 0 {
 		deleteFilename = ro.ReviewImg[4:] // 'img/' を取り除くためのハードコーディング
-		ro.ReviewImg = fmt.Sprintf("img/%s", filename.(string))	
+		ro.ReviewImg = fmt.Sprintf("img/%s", filename.(string))
 	}
 
 	// 認可の確認
