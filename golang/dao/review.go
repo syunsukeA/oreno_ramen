@@ -192,8 +192,7 @@ func (r *Review) UpdateReview(c *gin.Context, ro *object.Review) (roPost *object
 	return roPost, nil
 }
 
-func (r *Review) RemoveReviewAndShop(c *gin.Context, userID int64, shopID string, reviewID int64) (ro *object.Review, err error) {
-	ro = new(object.Review)
+func (r *Review) RemoveReviewAndShop(c *gin.Context, ro *object.Review) (postRo *object.Review, err error) {
 	// トランザクション処理の開始
 	tx, err := r.DB.BeginTxx(c, nil)
 	if err != nil {
@@ -206,14 +205,14 @@ func (r *Review) RemoveReviewAndShop(c *gin.Context, userID int64, shopID string
 			tx.Rollback()
 		case err != nil:
 			tx.Rollback()
-		case ro == nil:
+		case postRo == nil:
 			tx.Rollback()
 			log.Println(sql.ErrNoRows)
 		}
 	}()
 	// Exexでreviewを削除
 	q := `DELETE FROM reviews WHERE user_id = ? AND shop_id = ? AND review_id = ?`
-	res, err := tx.ExecContext(c, q, userID, shopID, reviewID)
+	res, err := tx.ExecContext(c, q, ro.UserID, ro.ShopID, ro.ReviewID)
 	if err != nil {
 		return nil, err
 	}
@@ -225,9 +224,9 @@ func (r *Review) RemoveReviewAndShop(c *gin.Context, userID int64, shopID string
 	if n_affected == 0 {
 		return nil, nil
 	}
-	// ToDo: user_id, shop_idで検索してreview件数が0ならshopsから削除
+	// user_id, shop_idで検索してreview件数が0ならshopsから削除
 	q = `SELECT * FROM reviews WHERE user_id = ? AND shop_id = ?`
-	res, err = tx.ExecContext(c, q, userID, shopID)
+	res, err = tx.ExecContext(c, q, ro.UserID, ro.ShopID)
 	if err != nil {
 		return nil, err
 	}
@@ -238,7 +237,7 @@ func (r *Review) RemoveReviewAndShop(c *gin.Context, userID int64, shopID string
 	if n_affected == 0 {
 		// shopsから削除
 		q := `DELETE FROM shops WHERE user_id = ? AND shop_id = ?`
-		res, err := tx.ExecContext(c, q, userID, shopID)
+		res, err := tx.ExecContext(c, q, ro.UserID, ro.ShopID)
 		if err != nil {
 			return nil, err
 		}
