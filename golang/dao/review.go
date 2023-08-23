@@ -209,8 +209,8 @@ func (r *Review) AddReviewAndShop(c *gin.Context, shopID string, userID int64, s
 	if err != nil {
 		// shopになかったらshopデータの追加
 		if err == sql.ErrNoRows {
-			q = `INSERT INTO shops (shop_id, user_id, shopname) VALUES (?, ?, ?)`
-			res, err := tx.Exec(q, shopID, userID, shopname)
+			q = `INSERT INTO shops (shop_id, user_id, shopname, bookmark) VALUES (?, ?, ?, ?)`
+			res, err := tx.Exec(q, shopID, userID, shopname, req.Bookmark)
 			if err != nil {
 				return nil, err
 			}
