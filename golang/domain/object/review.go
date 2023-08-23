@@ -23,6 +23,13 @@ type CreateReviewRequest struct {
 	DishName string
 	Content string
 	Evaluate uint
-	ReviewImg string // ToDo画像の取り扱いについては後ほど実装
+	ReviewImg string
+}
 
+type UpdateReviewRequest struct {
+	ShopID string `json:"shop_id"`
+	DishName string
+	Content string
+	Evaluate uint
+	ReviewImg string
 }
