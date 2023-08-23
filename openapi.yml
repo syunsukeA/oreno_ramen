@@ -454,6 +454,39 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Relationship" # ToDo: 返すべきrefを定義
+  "/home/review/period":
+    get:
+      security:
+        - Auth: []
+      tags:
+        - home
+      summary: (not implemented yet) Getting bookmark reviews filtered by Evaluate (need discussion)
+      description: ""
+      parameters:
+        - name: lower
+          in: query
+          description: lower
+          example: "2023-08-20"
+          required: true
+          schema:
+            type: string
+        - name: upper
+          in: query
+          description: upper
+          example: "2023-08-23"
+          required: true
+          schema:
+            type: string
+      # operationId: findRelationships
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Relationship" # ToDo: 返すべきrefを定義
   "/img/{filename}":
     get:
       tags:

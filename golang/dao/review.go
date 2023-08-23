@@ -5,6 +5,7 @@ import (
 	"errors"
 	"log"
 	_ "reflect"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/syunsukeA/oreno_ramen/golang/domain/object"
@@ -109,11 +110,48 @@ func (r *Review) GetBookmarkReviewByUserID(c *gin.Context, userID int64, num int
 func (r *Review) GetEvaluateReviewByUserID(c *gin.Context, userID int64, upper int64, lower int64) (ros []*object.Review, err error) {
 	ros = []*object.Review{} // レビューのスライスを初期化
 
-	// SQLクエリの作成。userIDで絞り込み、作成日で降順にソートし、上限をnumで設定。
+	// SQLクエリの作成。userIDで絞り込み、作成日で降順にソートし、上限をupper、下限をlowerで設定。
 	q := `
 	SELECT * FROM reviews
 	WHERE user_id = ? AND evaluate >= ? AND evaluate <= ?
 	ORDER BY created_at DESC
+	`
+
+	rows, err := r.DB.QueryxContext(c, q, userID, lower, upper)
+	if err != nil {
+		// エラーハンドリング
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, nil // データがなければnilを返す
+		}
+		return nil, err
+	}
+	defer rows.Close()
+
+	// 各行を読み込みながらスライスに追加
+	for rows.Next() {
+		ro := new(object.Review)
+		if err := rows.StructScan(ro); err != nil {
+			return nil, err
+		}
+		ros = append(ros, ro)
+	}
+
+	// rows.Err()は、rowsの反復中にエラーが発生した場合にエラーを返す
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return ros, nil
+}
+
+func (r *Review) GetPeriodReviewByUserID(c *gin.Context, userID int64, upper time.Time, lower time.Time) (ros []*object.Review, err error) {
+	ros = []*object.Review{} // レビューのスライスを初期化
+
+	// SQLクエリの作成。userIDで絞り込み、作成日で降順にソートし、上限をupper、下限をlowerで設定。
+	q := `
+	SELECT * FROM reviews
+	WHERE user_id = ? AND updated_at BETWEEN ? AND ?
+	ORDER BY updated_at DESC
 	`
 
 	rows, err := r.DB.QueryxContext(c, q, userID, lower, upper)

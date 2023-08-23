@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"time"
+
 	"github.com/syunsukeA/oreno_ramen/golang/domain/object"
 
 	"github.com/gin-gonic/gin"
@@ -11,6 +13,7 @@ type Review interface {
 	GetLatestReviewByUserID(c *gin.Context, userID int64, num int64) (ros []*object.Review, err error)
 	GetBookmarkReviewByUserID(c *gin.Context, userID int64, num int64) (ros []*object.Review, err error)
 	GetEvaluateReviewByUserID(c *gin.Context, userID int64, upper int64, lower int64) (ros []*object.Review, err error)
+	GetPeriodReviewByUserID(c *gin.Context, userID int64, upper time.Time, lower time.Time) (ros []*object.Review, err error)
 	GetUnvisitedReviews() (ROs []*object.Review)
 	AddReviewAndShop(c *gin.Context, shopID string, userID int64, shopname string, req *object.CreateReviewRequest) (ro *object.Review, err error)
 	FindReviewsByShopID(c *gin.Context, userID int64, shopID string) (ros []*object.Review, err error)
