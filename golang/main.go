@@ -79,8 +79,10 @@ func main() {
 	rt.POST("/signup", hSign.SignupUser)
 	//  profile API
 	profRt := rt.Group("/profile")
+	profRt.Use(hAuth.AuthenticationMiddleware())
 	{
-		profRt.GET("/", internal.GetShoplist)
+		h := handler.HUser{Rr: &rr, Ur: &ur}
+		profRt.GET("", h.UserProfile)
 		profRt.POST("/", internal.GetShoplist)
 	}
 	// search API
