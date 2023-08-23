@@ -167,7 +167,7 @@ func (r *Review) UpdateReview(c *gin.Context, ro *object.Review) (roPost *object
 		UPDATE reviews
 		SET shopname = ?, dishname = ?, content = ?, evaluate = ?, bookmark = ?, review_img = ?
 		WHERE user_id = ? AND review_id = ?`
-	res, err := r.DB.ExecContext(c, q, ro.ShopName, ro.DishName, ro.Content, ro.Evaluate, ro.Bookmark, ro.ReviewImg, ro.UserID, ro.ReviewID)
+	res, err := r.DB.ExecContext(c, q, ro.ShopName, ro.DishName, ro.Content, ro.Evaluate, ro.BookMark, ro.ReviewImg, ro.UserID, ro.ReviewID)
 	if err != nil {
 		return nil, err
 	}
