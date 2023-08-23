@@ -30,6 +30,11 @@ tags:
     externalDocs:
       description: Find out more
       url: http://example.com
+  - name: home
+    description: Everything about Home
+    externalDocs:
+      description: Find out more
+      url: http://example.com
   - name: image
     description: Everything about Imege
     externalDocs:
@@ -201,58 +206,6 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/HpShop"
-  "/home":
-    get:
-      security:
-        - Auth: []
-      tags:
-        - review
-      summary: (not implemented yet) Getting reviews (under the user? should named as reviews? need discussion)
-      description: ""
-      parameters:
-        - name: offset
-          in: query
-          description: offset
-          example: "3"
-          required: true
-          schema:
-            type: string
-      # operationId: findRelationships
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Relationship" # ToDo: 返すべきrefを定義
-  "/home/bookmark":
-    get:
-      security:
-        - Auth: []
-      tags:
-        - review
-      summary: (not implemented yet) Getting bookmark reviews (need discussion)
-      description: ""
-      parameters:
-        - name: offset
-          in: query
-          description: offset
-          example: "3"
-          required: true
-          schema:
-            type: string
-      # operationId: findRelationships
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Relationship" # ToDo: 返すべきrefを定義
   "/review":
     post:
       security:
@@ -416,6 +369,58 @@ paths:
       responses:
         "200":
           description: OK
+  "/home/review":
+    get:
+      security:
+        - Auth: []
+      tags:
+        - home
+      summary: (not implemented yet) Getting reviews (under the user? should named as reviews? need discussion)
+      description: ""
+      parameters:
+        - name: offset
+          in: query
+          description: offset
+          example: "3"
+          required: true
+          schema:
+            type: string
+      # operationId: findRelationships
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Relationship" # ToDo: 返すべきrefを定義
+  "/home/review/bookmark":
+    get:
+      security:
+        - Auth: []
+      tags:
+        - home
+      summary: (not implemented yet) Getting bookmark reviews (need discussion)
+      description: ""
+      parameters:
+        - name: offset
+          in: query
+          description: offset
+          example: "3"
+          required: true
+          schema:
+            type: string
+      # operationId: findRelationships
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Relationship" # ToDo: 返すべきrefを定義
   "/img/{filename}":
     get:
       tags:
