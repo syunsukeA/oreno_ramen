@@ -68,6 +68,12 @@ func (h *HReview) HomeReview(c *gin.Context) {
 	}
 }
 
+/*
+ToDo
+	errが起きた場合は最初に作成した画像は削除する必要がある。
+	defer文等でキャッチして挿入画像を削除するような実装が必要
+
+*/
 func (h *HReview) CreateReview(c *gin.Context) {
 	r := c.Request
 	w := c.Writer
@@ -154,6 +160,12 @@ func (h *HReview) CreateReview(c *gin.Context) {
 	}
 }
 
+/*
+ToDo
+	errが起きた場合は最初に作成した画像は削除する必要がある。
+	defer文等でキャッチして挿入画像を削除するような実装が必要
+
+*/
 func (h *HReview) UpdateReview(c *gin.Context) {
 	r := c.Request
 	w := c.Writer
@@ -246,7 +258,7 @@ func (h *HReview) UpdateReview(c *gin.Context) {
 	}
 	// 最後までerrがない&filenameが空文字列でないなら画像を削除
 	if len(deleteFilename) > 0 {
-		// deletefilenameを削除するような実装
+		// 該当ファイルを削除
 		removeFilePath := fmt.Sprintf("%s/%s", img_dir_path, deleteFilename)
 		err := os.Remove(removeFilePath)
 		// errが発生した場合はfilepathをlogに吐くようにする
@@ -301,7 +313,7 @@ func (h *HReview) RemoveReview(c *gin.Context) {
 	}
 
 	// reviewを削除 (reviewが0になったらshopsからも削除)
-	ro, err = h.Rr.RemoveReviewAndShop(c, ro.UserID, ro.ShopID, ro.ReviewID)
+	ro, err = h.Rr.RemoveReviewAndShop(c, ro)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		log.Println(err)
@@ -313,4 +325,19 @@ func (h *HReview) RemoveReview(c *gin.Context) {
 		return
 	}
 	w.WriteHeader(http.StatusOK)
+	// ToDo: 最後までerrがない&filenameが空文字列でないなら画像を削除
+	log.Println("reviewImg: ", ro.ReviewImg)
+	deleteFilename := ro.ReviewImg[4:] // 'img/' を取り除くためのハードコーディング
+	if len(deleteFilename) > 0 {
+		// 該当ファイルを削除
+		removeFilePath := fmt.Sprintf("%s/%s", img_dir_path, deleteFilename)
+		err := os.Remove(removeFilePath)
+		// errが発生した場合はfilepathをlogに吐くようにする
+		// ToDo: 削除に失敗した場合のさらに良い対処法を考える
+		if err != nil {
+			log.Printf("Remove reeor: '%s' ", removeFilePath)
+			w.WriteHeader(http.StatusInternalServerError)
+			log.Println(err)
+		}
+	}
 }
