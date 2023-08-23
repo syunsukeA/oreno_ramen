@@ -12,7 +12,7 @@ type Review struct {
 	DishName  string    `json:"dishname" db:"dishname"`
 	Content   string    `json:"content" db:"content"`
 	Evaluate  uint      `json:"evaluate" db:"evaluate"`
-	BookMark  uint      `json:"bookmark" db:"bookmark"`
+	Bookmark  uint      `json:"bookmark" db:"bookmark"`
 	ReviewImg string    `json:"review_img" db:"review_img"`
 	CreatedAt time.Time `json:"created_at" db:"created_at"`
 	UpdatedAt time.Time `json:"updated_at" db:"updated_at"`
@@ -23,7 +23,7 @@ type CreateReviewRequest struct {
 	DishName  string
 	Content   string
 	Evaluate  uint
-	BookMark  uint
+	Bookmark  uint
 	ReviewImg string
 }
 
@@ -32,6 +32,6 @@ type UpdateReviewRequest struct {
 	DishName  string
 	Content   string
 	Evaluate  uint
-	BookMark  uint
+	Bookmark  uint
 	ReviewImg string
 }

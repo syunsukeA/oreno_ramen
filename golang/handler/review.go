@@ -68,7 +68,7 @@ func (h *HReview) HomeReview(c *gin.Context) {
 	}
 }
 
-func (h *HReview) HomeBookMarkReview(c *gin.Context) {
+func (h *HReview) HomeBookmarkReview(c *gin.Context) {
 	w := c.Writer
 
 	// リクエストボディからオフセットを取得
@@ -92,7 +92,7 @@ func (h *HReview) HomeBookMarkReview(c *gin.Context) {
 
 	// userIDから関連するレビューを取得
 	number_reviews := 10 + offset
-	reviews, err := h.Rr.GetBookMarkReviewByUserID(c, uo.UserID, int64(number_reviews))
+	reviews, err := h.Rr.GetBookmarkReviewByUserID(c, uo.UserID, int64(number_reviews))
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		log.Println(err)
@@ -183,8 +183,8 @@ func (h *HReview) CreateReview(c *gin.Context) {
 		log.Println(err)
 		return
 	}
-	req.BookMark = uint(uint64_bookmark)
-	// req.BookMark = (uint64_bookmark != 0) // boolの場合
+	req.Bookmark = uint(uint64_bookmark)
+	// req.Bookmark = (uint64_bookmark != 0) // boolの場合
 
 	log.Println(req)
 	// ctxからimg_urlを取得
@@ -335,8 +335,8 @@ func (h *HReview) UpdateReview(c *gin.Context) {
 		log.Println(err)
 		return
 	}
-	ro.BookMark = uint(uint64_bookmark)
-	// ro.BookMark = (uint64_bookmark != 0) // boolの場合
+	ro.Bookmark = uint(uint64_bookmark)
+	// ro.Bookmark = (uint64_bookmark != 0) // boolの場合
 
 	log.Println(req)
 	// ctxからimg_urlを取得

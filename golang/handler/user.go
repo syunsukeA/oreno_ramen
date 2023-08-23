@@ -19,7 +19,7 @@ type HUser struct {
 type UserProfileResponse struct {
 	User            *object.User     `json:"user"`
 	LatestReviews   []*object.Review `json:"latestReviews"`
-	BookMarkReviews []*object.Review `json:"bookmarkReviews"`
+	BookmarkReviews []*object.Review `json:"bookmarkReviews"`
 }
 
 func (h *HUser) UserProfile(c *gin.Context) {
@@ -59,7 +59,7 @@ func (h *HUser) UserProfile(c *gin.Context) {
 	}
 
 	// userIDから関連するブックマーク付きレビューを取得
-	bookmarkReviews, err := h.Rr.GetBookMarkReviewByUserID(c, uo.UserID, 3)
+	bookmarkReviews, err := h.Rr.GetBookmarkReviewByUserID(c, uo.UserID, 3)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		log.Println(err)
@@ -76,7 +76,7 @@ func (h *HUser) UserProfile(c *gin.Context) {
 	response := UserProfileResponse{
 		User:            uo,
 		LatestReviews:   latestReviews,
-		BookMarkReviews: bookmarkReviews,
+		BookmarkReviews: bookmarkReviews,
 	}
 
 	// ResponseBodyに書き込み

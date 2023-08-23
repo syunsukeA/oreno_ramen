@@ -68,7 +68,7 @@ func (r *Review) GetLatestReviewByUserID(c *gin.Context, userID int64, num int64
 	return ros, nil
 }
 
-func (r *Review) GetBookMarkReviewByUserID(c *gin.Context, userID int64, num int64) (ros []*object.Review, err error) {
+func (r *Review) GetBookmarkReviewByUserID(c *gin.Context, userID int64, num int64) (ros []*object.Review, err error) {
 	ros = []*object.Review{} // レビューのスライスを初期化
 
 	// SQLクエリの作成。userIDで絞り込み、作成日で降順にソートし、上限をnumで設定。
@@ -153,7 +153,7 @@ func (r *Review) AddReviewAndShop(c *gin.Context, shopID string, userID int64, s
 	// reviewデータの追加
 	// ToDo: 構造体駆使して短くする？
 	q = `INSERT INTO reviews (user_id, shop_id, shopname, dishname, content, evaluate, bookmark, review_img) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
-	res, err := tx.Exec(q, userID, shopID, shopname, req.DishName, req.Content, req.Evaluate, req.BookMark, req.ReviewImg)
+	res, err := tx.Exec(q, userID, shopID, shopname, req.DishName, req.Content, req.Evaluate, req.Bookmark, req.ReviewImg)
 	if err != nil {
 		return nil, err
 	}
@@ -205,7 +205,7 @@ func (r *Review) UpdateReview(c *gin.Context, ro *object.Review) (roPost *object
 		UPDATE reviews
 		SET shopname = ?, dishname = ?, content = ?, evaluate = ?, bookmark = ?, review_img = ?
 		WHERE user_id = ? AND review_id = ?`
-	res, err := r.DB.ExecContext(c, q, ro.ShopName, ro.DishName, ro.Content, ro.Evaluate, ro.BookMark, ro.ReviewImg, ro.UserID, ro.ReviewID)
+	res, err := r.DB.ExecContext(c, q, ro.ShopName, ro.DishName, ro.Content, ro.Evaluate, ro.Bookmark, ro.ReviewImg, ro.UserID, ro.ReviewID)
 	if err != nil {
 		return nil, err
 	}

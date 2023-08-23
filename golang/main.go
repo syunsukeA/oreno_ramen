@@ -99,7 +99,7 @@ func main() {
 	{
 		h := handler.HReview{Rr: &rr, Ur: &ur}
 		rt.GET("/home", hAuth.AuthenticationMiddleware(), h.HomeReview)
-		rt.GET("/home/bookmark", hAuth.AuthenticationMiddleware(), h.HomeBookMarkReview)
+		rt.GET("/home/bookmark", hAuth.AuthenticationMiddleware(), h.HomeBookmarkReview)
 		reviewRt.POST("", hImg.ImgHandler(), h.CreateReview)
 		reviewRt.GET("/:review_id", internal.GetShoplist)
 		reviewRt.POST("/:review_id", hImg.ImgHandler(), h.UpdateReview)
