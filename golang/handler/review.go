@@ -282,6 +282,14 @@ func (h *HReview) UpdateReview(c *gin.Context) {
 		return
 	}
 	ro.Evaluate = uint(uint64_eval)
+	uint64_bookmark, err := strconv.ParseUint(r.FormValue("bookmark"), 10, 64)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		log.Println(err)
+		return
+	}
+	ro.BookMark = uint(uint64_bookmark)
+	// ro.BookMark = (uint64_bookmark != 0) // boolの場合
 
 	log.Println(req)
 	// ctxからimg_urlを取得
