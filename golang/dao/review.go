@@ -114,8 +114,8 @@ func (r *Review) AddReviewAndShop(c *gin.Context, shopID string, userID int64, s
 	}
 	// reviewデータの追加
 	// ToDo: 構造体駆使して短くする？
-	q = `INSERT INTO reviews (user_id, shop_id, shopname, dishname, content, evaluate, review_img) VALUES (?, ?, ?, ?, ?, ?, ?)`
-	res, err := tx.Exec(q, userID, shopID, shopname, req.DishName, req.Content, req.Evaluate, req.ReviewImg)
+	q = `INSERT INTO reviews (user_id, shop_id, shopname, dishname, content, evaluate, bookmark, review_img) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
+	res, err := tx.Exec(q, userID, shopID, shopname, req.DishName, req.Content, req.Evaluate, req.BookMark, req.ReviewImg)
 	if err != nil {
 		return nil, err
 	}
