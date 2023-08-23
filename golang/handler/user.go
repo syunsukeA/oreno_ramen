@@ -16,6 +16,11 @@ type HUser struct {
 	Rr repository.Review
 }
 
+type UserProfileResponse struct {
+	User    *object.User     `json:"user"`
+	Reviews []*object.Review `json:"reviews"`
+}
+
 func (h *HUser) UserProfile(c *gin.Context) {
 	w := c.Writer
 
@@ -28,6 +33,15 @@ func (h *HUser) UserProfile(c *gin.Context) {
 		return
 	}
 	uo, _ := authedUo.(*object.User)
+
+	// ユーザー情報取得
+	uo, err := h.Ur.FindByUsername(c, uo.UserName)
+	if err != nil {
+		log.Printf("Internal server err")
+		w.WriteHeader(http.StatusInternalServerError)
+		c.Abort()
+		return
+	}
 
 	// userIDから関連するレビューを取得
 	reviews, err := h.Rr.GetLatestReviewByUserID(c, uo.UserID, 3)
@@ -43,10 +57,16 @@ func (h *HUser) UserProfile(c *gin.Context) {
 		return
 	}
 
+	// ユーザー情報とレビューを結合したレスポンスを生成
+	response := UserProfileResponse{
+		User:    uo,
+		Reviews: reviews,
+	}
+
 	// ResponseBodyに書き込み
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Add("Content-Type", "charset=utf-8")
-	if err := json.NewEncoder(w).Encode(reviews); err != nil {
+	if err := json.NewEncoder(w).Encode(response); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		log.Println(err)
 		return
