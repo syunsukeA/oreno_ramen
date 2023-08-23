@@ -107,8 +107,9 @@ func main() {
 	homeRt.Use(hAuth.AuthenticationMiddleware())
 	{
 		h := handler.HHome{Rr: &rr, Ur: &ur}
-		homeRt.GET("/review", hAuth.AuthenticationMiddleware(), h.HomeReview)
-		homeRt.GET("/review/bookmark", hAuth.AuthenticationMiddleware(), h.HomeBookmarkReview)
+		homeRt.GET("/review", h.HomeReview)
+		homeRt.GET("/review/bookmark", h.HomeBookmarkReview)
+		homeRt.GET("/review/evaluate", h.HomeEvaluateReview)
 	}
 	// image API
 	imgRt := rt.Group("/img")
