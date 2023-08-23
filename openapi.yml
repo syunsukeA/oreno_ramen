@@ -291,7 +291,7 @@ paths:
       responses:
         "204":
           description: No Content
-  "/{review_id}":
+  "/review/{review_id}":
     get:
       security:
         - Auth: []

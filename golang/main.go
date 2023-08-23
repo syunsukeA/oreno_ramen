@@ -92,12 +92,12 @@ func main() {
 		searchRt.GET("/unvisited", h.SearchUnvisited)
 	}
 	// review API
-	reviewRt := rt.Group("/")
+	reviewRt := rt.Group("/review")
 	reviewRt.Use(hAuth.AuthenticationMiddleware())
 	{
 		h := handler.HReview{Rr: &rr, Ur: &ur}
-		reviewRt.GET("/home", h.HomeReview)
-		reviewRt.POST("/review", hImg.ImgHandler(), h.CreateReview)
+		rt.GET("/home", hAuth.AuthenticationMiddleware(), h.HomeReview)
+		reviewRt.POST("", hImg.ImgHandler(), h.CreateReview)
 		reviewRt.GET("/:review_id", internal.GetShoplist)
 		reviewRt.POST("/:review_id", hImg.ImgHandler(), h.UpdateReview)
 		reviewRt.DELETE("/:review_id", h.RemoveReview)
