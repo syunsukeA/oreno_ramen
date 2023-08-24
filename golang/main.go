@@ -55,6 +55,7 @@ func main() {
 	hImg := handler.HImg{Ur: &ur}
 	// EndPointの定義 (ToDo: もう少し長くなりそうなら別関数に切り出してもいいかも？)
 	rt := gin.Default()
+	rt.Use(handler.DBTransactMiddleWare(db))
 	rt.Use(cors.New(cors.Config{
 		/*
 		   ToDo
@@ -66,13 +67,6 @@ func main() {
 			"*",
 		},
 	}))
-	// test API
-	testRt := rt.Group("/")
-	testRt.Use(hImg.ImgMiddleWare())
-	{
-		h := handler.HReview{Rr: &rr, Ur: &ur}
-		testRt.POST("/img_test", h.UpdateReview)
-	}
 	rt.GET("/", internal.GetShoplist) // ToDo: リダイレクト処理...？でも今回フロントから叩いてるからいらないか。
 	// sign API
 	hSign := handler.HSign{Ur: &ur}
@@ -98,9 +92,9 @@ func main() {
 	reviewRt.Use(hAuth.AuthenticationMiddleware())
 	{
 		h := handler.HReview{Rr: &rr, Ur: &ur}
-		reviewRt.POST("", hImg.ImgMiddleWare(), h.CreateReview)
+		reviewRt.POST("", hImg.ReviewImgMiddleWare(), h.CreateReview)
 		reviewRt.GET("/:review_id", internal.GetShoplist)
-		reviewRt.POST("/:review_id", hImg.ImgMiddleWare(), h.UpdateReview)
+		reviewRt.POST("/:review_id", hImg.ReviewImgMiddleWare(), h.UpdateReview)
 		reviewRt.DELETE("/:review_id", h.RemoveReview)
 	}
 	homeRt := rt.Group("/home")

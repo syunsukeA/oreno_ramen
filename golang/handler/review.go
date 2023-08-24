@@ -22,14 +22,6 @@ type HReview struct {
 }
 
 func (h *HReview) CreateReview(c *gin.Context) {
-	// ミドルウェアのサーバーな内画像トランザクションのためにパニックをStatusCode:500に変換
-	defer func() {
-		// パニック終了した場合はStatusCodeを500にする
-		if r := recover(); r != nil {
-			c.Writer.WriteHeader(http.StatusInternalServerError)
-		}
-	}()
-	
 	r := c.Request
 	w := c.Writer
 
@@ -124,14 +116,6 @@ func (h *HReview) CreateReview(c *gin.Context) {
 }
 
 func (h *HReview) UpdateReview(c *gin.Context) {
-	// ミドルウェアのサーバーな内画像トランザクションのためにパニックをStatusCode:500に変換
-	defer func() {
-		// パニック終了した場合はStatusCodeを500にする
-		if r := recover(); r != nil {
-			c.Writer.WriteHeader(http.StatusInternalServerError)
-		}
-	}()
-
 	r := c.Request
 	w := c.Writer
 
