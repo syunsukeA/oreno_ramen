@@ -190,18 +190,12 @@ func (r *Review) GetUnvisitedReviews() (ROs []*object.Review) {
 func (r *Review) AddReviewAndShop(c *gin.Context, shopID string, userID int64, shopname string, req *object.CreateReviewRequest) (ro *object.Review, err error) {
 	ro = new(object.Review)
 	// トランザクション処理の開始
-	tx, err := r.DB.BeginTxx(c, nil)
-	if err != nil {
-		return nil, err
+	any_tx, exists := c.Get("tx")
+	// txがない場合は削除すべきものがないのでそのままreturn
+	if !exists {
+		return nil, sql.ErrConnDone // ToDo: このerrorは適当につけているなので後で適正なものを探そう...。
 	}
-	defer func() {
-		switch r := recover(); {
-		case r != nil:
-			tx.Rollback()
-		case err != nil:
-			tx.Rollback()
-		}
-	}()
+	tx := any_tx.(*sqlx.Tx)
 	so := new(object.Shop)
 	// shopに該当データがあるか確認
 	q := `SELECT * from shops WHERE shop_id = ?`
@@ -246,11 +240,6 @@ func (r *Review) AddReviewAndShop(c *gin.Context, shopID string, userID int64, s
 	if err != nil {
 		return nil, err
 	}
-
-	// トランザクション処理をコミット
-	if err = tx.Commit(); err != nil {
-		return nil, err
-	}
 	return ro, nil
 }
 
@@ -275,12 +264,19 @@ func (r *Review) FindReviewsByShopID(c *gin.Context, userID int64, shopID string
 }
 
 func (r *Review) UpdateReview(c *gin.Context, ro *object.Review) (roPost *object.Review, err error) {
+	// トランザクション処理の開始
+	any_tx, exists := c.Get("tx")
+	// txがない場合は削除すべきものがないのでそのままreturn
+	if !exists {
+		return nil, sql.ErrConnDone // ToDo: このerrorは適当につけているなので後で適正なものを探そう...。
+	}
+	tx := any_tx.(*sqlx.Tx)
 	roPost = new(object.Review)
 	q := `
 		UPDATE reviews
 		SET shopname = ?, dishname = ?, content = ?, evaluate = ?, bookmark = ?, review_img = ?
 		WHERE user_id = ? AND review_id = ?`
-	res, err := r.DB.ExecContext(c, q, ro.ShopName, ro.DishName, ro.Content, ro.Evaluate, ro.Bookmark, ro.ReviewImg, ro.UserID, ro.ReviewID)
+	res, err := tx.ExecContext(c, q, ro.ShopName, ro.DishName, ro.Content, ro.Evaluate, ro.Bookmark, ro.ReviewImg, ro.UserID, ro.ReviewID)
 	if err != nil {
 		return nil, err
 	}
@@ -307,22 +303,13 @@ func (r *Review) UpdateReview(c *gin.Context, ro *object.Review) (roPost *object
 
 func (r *Review) RemoveReviewAndShop(c *gin.Context, ro *object.Review) (postRo *object.Review, err error) {
 	// トランザクション処理の開始
-	tx, err := r.DB.BeginTxx(c, nil)
-	if err != nil {
-		return nil, err
+	any_tx, exists := c.Get("tx")
+	// txがない場合は削除すべきものがないのでそのままreturn
+	if !exists {
+		return nil, sql.ErrConnDone // ToDo: このerrorは適当につけているなので後で適正なものを探そう...。
 	}
-	// defer内で戻り値の変更 (エラーハンドリング) はできないっぽいのでlogに吐き出す
-	defer func() {
-		switch r := recover(); {
-		case r != nil:
-			tx.Rollback()
-		case err != nil:
-			tx.Rollback()
-		case postRo == nil:
-			tx.Rollback()
-			log.Println(sql.ErrNoRows)
-		}
-	}()
+	tx := any_tx.(*sqlx.Tx)
+
 	// Exexでreviewを削除
 	q := `DELETE FROM reviews WHERE user_id = ? AND shop_id = ? AND review_id = ?`
 	res, err := tx.ExecContext(c, q, ro.UserID, ro.ShopID, ro.ReviewID)
@@ -359,10 +346,6 @@ func (r *Review) RemoveReviewAndShop(c *gin.Context, ro *object.Review) (postRo 
 		if err != nil {
 			return nil, err
 		}
-	}
-	// トランザクション処理をコミット
-	if err = tx.Commit(); err != nil {
-		return nil, err
 	}
 	return ro, nil
 }

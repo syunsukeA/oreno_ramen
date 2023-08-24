@@ -22,7 +22,7 @@ type HImg struct {
 	Ur repository.User
 }
 
-func (h *HImg) ImgHandler() gin.HandlerFunc {
+func (h *HImg) ReviewImgMiddleWare() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		r := c.Request
 		w := c.Writer
@@ -80,6 +80,37 @@ func (h *HImg) ImgHandler() gin.HandlerFunc {
 		}
 		log.Printf("upload OK")
 		c.Set("imgFilename", filename)
+		c.Next() 
+		// ルーティング内の処理の後に実行される
+		/*
+			異常ステータスで終了していた場合の処理。
+			正常Statusが200以外の場合もあるので注意！！
+		*/
+		defer func() {
+			// パニック終了した場合はStatusCodeを500にする
+			if r := recover(); r != nil {
+				c.Writer.WriteHeader(http.StatusInternalServerError)
+			}
+			if c.Writer.Status() != http.StatusOK && c.Writer.Status() != http.StatusNoContent {
+				deleteFilename, exists := c.Get("imgFilename")
+				// imgURLがない場合は削除すべきものがないのでそのままreturn
+				if !exists {
+					return
+				}
+				if len(deleteFilename.(string)) > 0 {
+					// 該当ファイルを削除
+					removeFilePath := fmt.Sprintf("%s/%s", img_dir_path, deleteFilename)
+					err := os.Remove(removeFilePath)
+					// errが発生した場合はfilepathをlogに吐くようにする
+					// ToDo: 削除に失敗した場合のさらに良い対処法を考える
+					if err != nil {
+						log.Printf("Remove reeor: '%s' ", removeFilePath)
+						log.Println(err)
+						return
+					}
+				}
+			}
+		}()
 	}
 }
 
@@ -141,6 +172,32 @@ func (h *HImg) ProfileImgHandler() gin.HandlerFunc {
 		}
 		log.Printf("upload OK")
 		c.Set("imgFilename", filename)
+
+		defer func() {
+			// パニック終了した場合はStatusCodeを500にする
+			if r := recover(); r != nil {
+				c.Writer.WriteHeader(http.StatusInternalServerError)
+			}
+			if c.Writer.Status() != http.StatusOK && c.Writer.Status() != http.StatusNoContent {
+				deleteFilename, exists := c.Get("imgFilename")
+				// imgURLがない場合は削除すべきものがないのでそのままreturn
+				if !exists {
+					return
+				}
+				if len(deleteFilename.(string)) > 0 {
+					// 該当ファイルを削除
+					removeFilePath := fmt.Sprintf("%s/%s", img_dir_path, deleteFilename)
+					err := os.Remove(removeFilePath)
+					// errが発生した場合はfilepathをlogに吐くようにする
+					// ToDo: 削除に失敗した場合のさらに良い対処法を考える
+					if err != nil {
+						log.Printf("Remove reeor: '%s' ", removeFilePath)
+						log.Println(err)
+						return
+					}
+				}
+			}
+		}()
 	}
 }
 
