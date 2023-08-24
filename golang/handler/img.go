@@ -80,7 +80,7 @@ func (h *HImg) ReviewImgMiddleWare() gin.HandlerFunc {
 		}
 		log.Printf("upload OK")
 		c.Set("imgFilename", filename)
-		c.Next() 
+		c.Next()
 		// ルーティング内の処理の後に実行される
 		/*
 			異常ステータスで終了していた場合の処理。
@@ -216,6 +216,11 @@ func (h *HImg) ShowImg(c *gin.Context) {
 	*/
 	imgFilePath := fmt.Sprintf("%s/%s", img_dir_path, filename)
 	imgFile, err := os.Open(imgFilePath)
+	if os.IsNotExist(err) {
+		c.Writer.WriteHeader(http.StatusNotFound)
+		log.Printf("Image %s not found", filename)
+		return
+	}
 	if err != nil {
 		c.Writer.WriteHeader(http.StatusInternalServerError)
 		log.Println(err)
