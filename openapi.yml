@@ -50,6 +50,23 @@ paths:
       # operationId: getHealth
       requestBody:
         content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  example: Koshikawa
+                  description: The username of the account
+                password:
+                  type: string
+                  example: hogehoge
+                  description: Password of user
+                profile_img:
+                  type: string
+                  format: binary
+                  description: Profile image
+            required: true
           application/json:
             schema:
               type: object
@@ -62,6 +79,10 @@ paths:
                   type: string
                   example: hogehoge
                   description: Password of user
+                profile_img:
+                  type: string
+                  format: binary
+                  description: Profile image
         required: true
       responses:
         "200":

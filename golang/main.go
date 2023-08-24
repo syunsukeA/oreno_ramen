@@ -76,7 +76,7 @@ func main() {
 	rt.GET("/", internal.GetShoplist) // ToDo: リダイレクト処理...？でも今回フロントから叩いてるからいらないか。
 	// sign API
 	hSign := handler.HSign{Ur: &ur}
-	rt.POST("/signup", hSign.SignupUser)
+	rt.POST("/signup", hImg.ImgHandler(), hSign.SignupUser)
 	//  profile API
 	profRt := rt.Group("/profile")
 	profRt.Use(hAuth.AuthenticationMiddleware())
@@ -113,6 +113,7 @@ func main() {
 		homeRt.GET("/review/period", h.HomePeriodReview)
 		homeRt.GET("/shop", h.HomeShop)
 		homeRt.GET("/shop/bookmark", h.HomeBookmarkShop)
+		homeRt.GET("/shop/evaluate", h.HomeEvaluateShop)
 	}
 	// image API
 	imgRt := rt.Group("/img")

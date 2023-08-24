@@ -30,17 +30,19 @@ func (r *User) FindByUsername(c *gin.Context, username string) (uo *object.User,
 	return uo, nil
 }
 
-func (r *User) SignupByUsername(c *gin.Context, username string, password string) (uo *object.User, err error) {
+func (r *User) SignupByUsername(c *gin.Context, username string, password string, profileImg string) (uo *object.User, err error) {
 	uo = new(object.User)
 
 	// ユーザーをデータベースに登録
-	q := `INSERT INTO users (username, profile_img, password) VALUES (?, '', ?)`
-	_, err = r.DB.ExecContext(c, q, username, password)
+	q := `INSERT INTO users (username, password, profile_img) VALUES (?, ?, ?)`
+	_, err = r.DB.ExecContext(c, q, username, password, profileImg)
 	if err != nil {
 		log.Println("=========================================")
+		log.Println("Error inserting into users:", err)
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, nil
 		}
+		return nil, err
 	}
 
 	// 登録したユーザーを取得して返す

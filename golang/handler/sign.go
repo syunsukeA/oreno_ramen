@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 
@@ -15,20 +15,30 @@ type HSign struct {
 }
 
 func (h *HSign) SignupUser(c *gin.Context) {
-	// r := c.Request
+	r := c.Request
 	w := c.Writer
 
 	// リクエストボディからユーザー情報を取得
-	var user object.User
-	err := json.NewDecoder(c.Request.Body).Decode(&user)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		log.Println(err)
+	user := new(object.User)
+	user.UserName = r.FormValue("username")
+	user.Password = r.FormValue("password")
+
+	// ctxからimg_urlを取得
+	filename, exists := c.Get("imgFilename")
+	// imgURLがない場合はerr
+	if !exists {
+		w.WriteHeader(http.StatusInternalServerError)
+		log.Println("Something wrong on img-uploading")
 		return
 	}
 
+	// 画像取得エンドポイントのURLを格納
+	profileImg := fmt.Sprintf("img/%s", filename.(string))
+	// TODO: エラーハンドリングの追加
+	user.ProfileImg = profileImg
+
 	// ユーザーを登録
-	_, err = h.Ur.SignupByUsername(c, user.UserName, user.Password)
+	_, err := h.Ur.SignupByUsername(c, user.UserName, user.Password, user.ProfileImg)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
