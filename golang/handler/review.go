@@ -53,7 +53,6 @@ func (h *HReview) CreateReview(c *gin.Context) {
 		return
 	}
 	req.Bookmark = uint(uint64_bookmark)
-	// req.Bookmark = (uint64_bookmark != 0) // boolの場合
 
 	log.Println(req)
 	// ctxからimg_urlを取得
@@ -168,7 +167,6 @@ func (h *HReview) UpdateReview(c *gin.Context) {
 		return
 	}
 	ro.Bookmark = uint(uint64_bookmark)
-	// ro.Bookmark = (uint64_bookmark != 0) // boolの場合
 
 	log.Println(req)
 	// ctxからimg_urlを取得
