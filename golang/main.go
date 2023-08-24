@@ -68,7 +68,7 @@ func main() {
 	}))
 	// test API
 	testRt := rt.Group("/")
-	testRt.Use(hImg.ImgHandler())
+	testRt.Use(hImg.ImgMiddleWare())
 	{
 		h := handler.HReview{Rr: &rr, Ur: &ur}
 		testRt.POST("/img_test", h.UpdateReview)
@@ -98,9 +98,9 @@ func main() {
 	reviewRt.Use(hAuth.AuthenticationMiddleware())
 	{
 		h := handler.HReview{Rr: &rr, Ur: &ur}
-		reviewRt.POST("", hImg.ImgHandler(), h.CreateReview)
+		reviewRt.POST("", hImg.ImgMiddleWare(), h.CreateReview)
 		reviewRt.GET("/:review_id", internal.GetShoplist)
-		reviewRt.POST("/:review_id", hImg.ImgHandler(), h.UpdateReview)
+		reviewRt.POST("/:review_id", hImg.ImgMiddleWare(), h.UpdateReview)
 		reviewRt.DELETE("/:review_id", h.RemoveReview)
 	}
 	homeRt := rt.Group("/home")
