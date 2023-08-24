@@ -152,8 +152,14 @@ func (h *HReview) UpdateReview(c *gin.Context) {
 	// formから値を取得
 	// ToDo: 変更がない場合は空文字列で送るような実装になっているならば修正が必要
 	// req.ShopID = r.FormValue("shop_id")
-	ro.DishName = r.FormValue("dishname")
-	ro.Content = r.FormValue("content")
+	dishname := r.FormValue("dishname")
+	content := r.FormValue("content")
+	if dishname != "" {
+		ro.DishName = dishname
+	}
+	if content != "" {
+		ro.Content = content
+	}
 	uint64_eval, err := strconv.ParseUint(r.FormValue("evaluate"), 10, 64)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
