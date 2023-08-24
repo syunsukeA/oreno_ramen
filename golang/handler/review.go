@@ -350,6 +350,7 @@ func (h *HReview) RemoveReview(c *gin.Context) {
 		log.Println(err)
 		return
 	}
+	// ToDo: 返すべきステータスコードちゃんと考える
 	if ro == nil {
 		w.WriteHeader(http.StatusNotFound)
 		log.Println(err)

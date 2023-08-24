@@ -113,7 +113,7 @@ func main() {
 		homeRt.GET("/review/period", h.HomePeriodReview)
 		homeRt.GET("/shop", h.HomeShop)
 		homeRt.GET("/shop/bookmark", h.HomeBookmarkShop)
-		homeRt.GET("/shop/evaluate", h.HomeEvaluateShop)
+		// homeRt.GET("/shop/evaluate", h.HomeEvaluateShop)
 	}
 	// image API
 	imgRt := rt.Group("/img")
