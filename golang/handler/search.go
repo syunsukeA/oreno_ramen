@@ -1,11 +1,11 @@
 package handler
 
 import (
-	"log"
+	"encoding/json"
 	"io"
+	"log"
 	"net/http"
 	"net/url"
-	"encoding/json"
 
 	"github.com/syunsukeA/oreno_ramen/golang/domain/object"
 	"github.com/syunsukeA/oreno_ramen/golang/domain/repository"
@@ -28,7 +28,7 @@ type HSearch struct {
 Visitedが一番意見が食い違っていそう。
 とりあえず一番低コストな"Unvisitedのコピー"として実装。
 */
-func (h *HSearch) SearchVisited(c *gin.Context){
+func (h *HSearch) SearchVisited(c *gin.Context) {
 	r := c.Request
 	w := c.Writer
 
@@ -43,16 +43,19 @@ func (h *HSearch) SearchVisited(c *gin.Context){
 	uo, _ := authedUo.(*object.User)
 
 	// queryパラメータ判定
-	lat := r.URL.Query().Get("lat") 
+	lat := r.URL.Query().Get("lat")
 	lng := r.URL.Query().Get("lng")
 	rng := r.URL.Query().Get("rng")
-	// ToDo: paramエラーハンドリング
+	if lat == "" || lng == "" || rng == "" {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 
 	// HotPepper API呼び出し
 	params := url.Values{}
-    params.Add("key", HP_API_KEY)
+	params.Add("key", HP_API_KEY)
 	params.Add("keyword", "ラーメン")
-    params.Add("lat", lat)
+	params.Add("lat", lat)
 	params.Add("lng", lng)
 	params.Add("range", rng)
 	params.Add("format", "json")
@@ -124,7 +127,7 @@ func (h *HSearch) SearchVisited(c *gin.Context){
 	}
 }
 
-func (h *HSearch) SearchUnvisited(c *gin.Context){
+func (h *HSearch) SearchUnvisited(c *gin.Context) {
 	r := c.Request
 	w := c.Writer
 
@@ -139,16 +142,19 @@ func (h *HSearch) SearchUnvisited(c *gin.Context){
 	uo, _ := authedUo.(*object.User)
 
 	// queryパラメータ判定
-	lat := r.URL.Query().Get("lat") 
+	lat := r.URL.Query().Get("lat")
 	lng := r.URL.Query().Get("lng")
 	rng := r.URL.Query().Get("rng")
-	// ToDo: paramエラーハンドリング
+	if lat == "" || lng == "" || rng == "" {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 
 	// HotPepper API呼び出し
 	params := url.Values{}
-    params.Add("key", HP_API_KEY)
+	params.Add("key", HP_API_KEY)
 	params.Add("keyword", "ラーメン")
-    params.Add("lat", lat)
+	params.Add("lat", lat)
 	params.Add("lng", lng)
 	params.Add("range", rng)
 	params.Add("format", "json")
@@ -201,7 +207,7 @@ func (h *HSearch) SearchUnvisited(c *gin.Context){
 			unvisitedhpShops = append(unvisitedhpShops, shop)
 		}
 	}
-	
+
 	// 絞り込んだ結果、店舗数が0になってしまったら404を返す
 	if len(unvisitedhpShops) == 0 {
 		w.WriteHeader(http.StatusNotFound)
