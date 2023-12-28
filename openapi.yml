@@ -9,7 +9,7 @@ info:
   contact: {}
 servers:
   - url: http://localhost:8080
-  - url: http://44.218.199.137:8080
+  - url: http://54.64.130.71:8080
 tags:
   - name: test
     description: Testing API
